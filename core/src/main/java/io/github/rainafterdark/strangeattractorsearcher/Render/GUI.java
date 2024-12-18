@@ -1,4 +1,4 @@
-package io.github.rainafterdark.strangeattractorsearcher;
+package io.github.rainafterdark.strangeattractorsearcher.Render;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
@@ -9,11 +9,11 @@ import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 
 public class GUI {
-    private static ImGuiImplGlfw imGuiGlfw;
-    private static ImGuiImplGl3 imGuiGl3;
-    private static InputProcessor tmpProcessor;
+    private ImGuiImplGlfw imGuiGlfw;
+    private ImGuiImplGl3 imGuiGl3;
+    private InputProcessor tmpProcessor;
 
-    public static void initImGui() {
+    public void initImGui() {
        imGuiGlfw = new ImGuiImplGlfw();
        imGuiGl3 = new ImGuiImplGl3();
        long windowHandle = ((Lwjgl3Graphics) Gdx.graphics).getWindow().getWindowHandle();
@@ -26,7 +26,7 @@ public class GUI {
        imGuiGl3.init("#version 150");
     }
 
-    public static void startImGui() {
+    public void startImGui() {
        if (tmpProcessor != null) { // Restore the input processor after ImGui caught all inputs, see #end()
           Gdx.input.setInputProcessor(tmpProcessor);
           tmpProcessor = null;
@@ -37,7 +37,7 @@ public class GUI {
        ImGui.newFrame();
     }
 
-    public static void endImGui() {
+    public void endImGui() {
        ImGui.render();
        imGuiGl3.renderDrawData(ImGui.getDrawData());
 
@@ -48,7 +48,7 @@ public class GUI {
        }
     }
 
-    public static void disposeImGui() {
+    public void disposeImGui() {
        imGuiGl3.shutdown();
        imGuiGl3 = null;
        imGuiGlfw.shutdown();
