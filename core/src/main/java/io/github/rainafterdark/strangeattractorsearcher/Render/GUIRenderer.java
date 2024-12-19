@@ -8,7 +8,7 @@ import imgui.ImGuiIO;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 
-public class GUI {
+public class GUIRenderer {
     private ImGuiImplGlfw imGuiGlfw;
     private ImGuiImplGl3 imGuiGl3;
     private InputProcessor tmpProcessor;

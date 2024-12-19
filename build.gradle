@@ -75,6 +75,15 @@ subprojects {
     api "io.github.spair:imgui-java-natives-linux:$imguiVersion"
     api "io.github.spair:imgui-java-natives-macos:$imguiVersion"
     api "io.github.spair:imgui-java-natives-windows:$imguiVersion"
+
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
   }
 }
 

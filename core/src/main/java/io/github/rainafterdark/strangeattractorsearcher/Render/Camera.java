@@ -7,8 +7,7 @@ import com.badlogic.gdx.math.Matrix4;
 
 public class Camera {
     private PerspectiveCamera camera;
-    private float cameraRadius = 100f; // Distance from the origin
-    private float theta = 0f;        // Horizontal angle (radians)
+    private float cameraRadius = 50f; // Distance from the origin
     private float basePhi = (float) Math.PI / 2; // Base angle (horizontal plane)
     private float phiAmplitude = (float) Math.PI / 4; // 45 degrees oscillation above/below
     private float oscillationSpeed = 0.1f; // Speed of oscillation
@@ -25,9 +24,9 @@ public class Camera {
     public void update(float deltaTime) {
         // Increment angles
         time += deltaTime;
-        theta += deltaTime * 0.25f; // Horizontal rotation speed
+        float theta = time * 0.25f; // Horizontal rotation speed
          // Calculate the oscillating polar angle
-        float phi = basePhi + phiAmplitude * MathUtils.sin(oscillationSpeed * time);
+        float phi = basePhi - phiAmplitude * MathUtils.sin(oscillationSpeed * time);
 
         // Clamp phi to avoid flipping at poles (optional)
         phi = MathUtils.clamp(phi, 0.1f, (float) Math.PI - 0.1f);

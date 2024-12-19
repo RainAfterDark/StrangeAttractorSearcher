@@ -18,11 +18,11 @@ public class Particle {
         trail.add(initPoint);
     }
 
-    public void update(Attractor attractor, float deltaTime, float speed) {
+    public void update(Attractor attractor, float deltaTime, float speed, int trailLength) {
         Vector3 head = trail.get(trail.size - 1);
         float dt = deltaTime * speed;
         trail.add(attractor.step(head, dt));
-        if (trail.size > 50 / speed) {
+        if (trail.size > trailLength / speed) {
             trail.removeIndex(0);
         }
     }
