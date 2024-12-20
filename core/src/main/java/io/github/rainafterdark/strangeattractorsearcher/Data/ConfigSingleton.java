@@ -1,4 +1,4 @@
-package io.github.rainafterdark.strangeattractorsearcher;
+package io.github.rainafterdark.strangeattractorsearcher.Data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -8,22 +8,24 @@ import java.io.File;
 import java.io.IOException;
 
 @Data
-public class Config {
+public class ConfigSingleton {
     private static final String CONFIG_FILE = "sas_config.json";
-    private static Config instance;
+    private static ConfigSingleton instance;
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    private float simulationSpeed = 1f;
-    private int particleAmount = 100;
-    private int trailLength = 200;
+    // Fields
+    private ParticleConfig particle = new ParticleConfig();
+    private ColorConfig color = new ColorConfig();
+    private CameraConfig camera = new CameraConfig();
 
     // Private constructor for singleton
-    private Config() {}
+    private ConfigSingleton() {}
 
     // Get the singleton instance
-    public static synchronized Config getInstance() {
+    public static synchronized ConfigSingleton getInstance() {
         if (instance == null) {
-            instance = loadFromFile();
+            instance = new ConfigSingleton();
+            instance.loadFromFile();
         }
         return instance;
     }
@@ -39,16 +41,16 @@ public class Config {
     }
 
     // Load configuration from the JSON file, or create a new default instance
-    private static Config loadFromFile() {
+    private void loadFromFile() {
         File file = new File(CONFIG_FILE);
         if (file.exists()) {
             try {
-                return mapper.readValue(file, Config.class);
+                // Map the JSON values to existing fields
+                mapper.readerForUpdating(getInstance()).readValue(file);
             } catch (IOException e) {
                 System.err.println("Failed to load configuration, using defaults: " + e.getMessage());
             }
         }
-        return new Config(); // Return default instance if file doesn't exist
     }
 }
 

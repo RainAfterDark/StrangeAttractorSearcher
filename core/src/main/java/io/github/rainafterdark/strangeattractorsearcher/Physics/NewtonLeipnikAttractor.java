@@ -2,10 +2,10 @@ package io.github.rainafterdark.strangeattractorsearcher.Physics;
 
 import com.badlogic.gdx.math.Vector3;
 
-public class HalvorsenAttractor implements Attractor {
+public class NewtonLeipnikAttractor implements Attractor {
     @Override
     public Vector3 initial() {
-        return new Vector3(1f, 0f, 0f);
+        return new Vector3();
     }
 
     @Override
@@ -14,12 +14,13 @@ public class HalvorsenAttractor implements Attractor {
         float y = point.y;
         float z = point.z;
 
-        float a = 1.4f;
-        float dt = 0.5f * deltaTime;
+        float a = 0.4f;
+        float b = 0.175f;
+        float dt = 0.75f * deltaTime;
 
-        float dx = (-a * x) - (4 * y) - (4 * z) - (y * y);
-        float dy = (-a * y) - (4 * z) - (4 * x) - (z * z);
-        float dz = (-a * z) - (4 * x) - (4 * y) - (x * x);
+        float dx = -(a * x) + y + (10 * y * z);
+        float dy = -x - (0.4f * y) + (5f * x * z);
+        float dz = (b * z) - (5 * x * y);
 
         Vector3 nP = point.cpy();
         nP.x += dx * dt;

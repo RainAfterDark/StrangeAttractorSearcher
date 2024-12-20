@@ -4,14 +4,15 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
+import lombok.Getter;
 
 public class Particle {
-    public Array<Vector3> trail;
+    public final Array<Vector3> trail = new Array<>();
+    @Getter private boolean outOfBounds = false;
 
-    public Particle() {
-        this.trail = new Array<Vector3>();
-        Vector3 initPoint = new Vector3();
-        float offset = 0.1f;
+    public Particle(Attractor attractor) {
+        Vector3 initPoint = attractor.initial();
+        float offset = 0.01f;
         initPoint.x = MathUtils.random(offset, -offset);
         initPoint.y = MathUtils.random(offset, -offset);
         initPoint.z = MathUtils.random(offset, -offset);
@@ -19,11 +20,19 @@ public class Particle {
     }
 
     public void update(Attractor attractor, float deltaTime, float speed, int trailLength) {
-        Vector3 head = trail.get(trail.size - 1);
-        float dt = deltaTime * speed;
-        trail.add(attractor.step(head, dt));
-        if (trail.size > trailLength / speed) {
+        for (int i = trail.size; i > trailLength / speed; i--) {
             trail.removeIndex(0);
         }
+        if (!outOfBounds) {
+            Vector3 head = trail.get(trail.size - 1);
+            float dt = deltaTime * speed;
+            Vector3 step = attractor.step(head, dt);
+            if (step.dst(new Vector3()) > 500f)
+                outOfBounds = true;
+            trail.add(step);
+            return;
+        }
+        if (!trail.isEmpty())
+            trail.removeIndex(0);
     }
 }
