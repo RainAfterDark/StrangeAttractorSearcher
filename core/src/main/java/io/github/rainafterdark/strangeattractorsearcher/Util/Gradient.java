@@ -11,7 +11,6 @@ import java.util.List;
 public class Gradient {
     private final List<Color> colors = new ArrayList<>();
 
-    // Add a color to the gradient
     public Gradient addColor(Color color) {
         colors.add(new Color(color));
         return this;
@@ -42,18 +41,9 @@ public class Gradient {
         return colors.get(startIndex).cpy().lerp(colors.get(endIndex), t);
     }
 
-    private final static Color[] rainbow = {
-        new Color(0.8f, 0.4f, 0.9f, 1f), // Light purple (#CC66E6)
-        new Color(0.6f, 0.6f, 1.0f, 1f), // Light blue (#99CCFF)
-        new Color(0.6f, 1.0f, 0.6f, 1f), // Light green (#99FF99)
-        new Color(1.0f, 1.0f, 0.6f, 1f), // Light yellow (#FFFF99)
-        new Color(1.0f, 0.8f, 0.6f, 1f), // Light orange (#FFCC99)
-        new Color(1.0f, 0.6f, 0.6f, 1f), // Light red (#FF9999)
-        Color.WHITE.cpy()};
-
     public static Gradient getRainbowGradient() {
         Gradient rainbowGradient = new Gradient();
-        for (Color color : rainbow) {
+        for (Color color : ColorHelper.getRainbow()) {
             rainbowGradient.addColor(color);
         }
         return rainbowGradient;

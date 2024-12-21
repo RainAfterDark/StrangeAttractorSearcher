@@ -5,91 +5,134 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ColorConfig;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ParticleConfig;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.HalvorsenAttractor;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.LorenzAttractor;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.NewtonLeipnikAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Data.*;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.*;
+
+import static java.lang.Float.NaN;
 
 public class ParticleRenderer {
-    private ConfigSingleton config;
+    private StrangeConfig strangeConfig;
     private ParticleConfig particleConfig;
     private ColorConfig colorConfig;
+    private DebugSingleton debug;
+
+    private final LorenzAttractor lorenzAttractor = new LorenzAttractor();
+    private final HalvorsenAttractor halvorsenAttractor = new HalvorsenAttractor();
+    private final NewtonLeipnikAttractor newtonLeipnikAttractor = new NewtonLeipnikAttractor();
+
     private Camera camera;
     private ShapeRenderer shapeRenderer;
     private Array<Particle> particles;
+    private AttractorType selectedAttractorType;
+    private Attractor selectedAttractor;
+    private Thread attractorSearchThread;
     private float stepAccumulator = 0f;
+    private float respawnAccumulator = 0f;
 
     public void init() {
-        config = ConfigSingleton.getInstance();
+        ConfigSingleton config = ConfigSingleton.getInstance();
+        strangeConfig = config.getStrange();
         particleConfig = config.getParticle();
         colorConfig = config.getColor();
+        debug = DebugSingleton.getInstance();
+
         camera = new Camera();
         camera.init();
+
         shapeRenderer = new ShapeRenderer();
+        shapeRenderer.setAutoShapeType(true);
         particles = new Array<>();
     }
 
     private void drawAxes() {
-        // Draw axes
-        float axisLength = 50f; // Length of the axes
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        // X-axis (Red)
+        float axisLength = 50f;
+        shapeRenderer.begin();
         shapeRenderer.setColor(Color.RED.cpy().sub(0, 0, 0, 0.75f));
         shapeRenderer.line(-axisLength, 0, 0, axisLength, 0, 0);
-        // Y-axis (Green)
         shapeRenderer.setColor(Color.GREEN.cpy().sub(0, 0, 0, 0.75f));
         shapeRenderer.line(0, -axisLength, 0, 0, axisLength, 0);
-        // Z-axis (Blue)
         shapeRenderer.setColor(Color.SKY.cpy().sub(0, 0, 0, 0.75f));
         shapeRenderer.line(0, 0, -axisLength, 0, 0, axisLength);
         shapeRenderer.end();
     }
 
-    private Attractor getAttractor() {
-        return switch (particleConfig.getAttractorType()) {
-            case Halvorsen -> new HalvorsenAttractor();
-            case NewtonLeipnik -> new NewtonLeipnikAttractor();
-            default -> new LorenzAttractor();
-        };
+    private void updateAttractor() {
+        Attractor newAttractor = null;
+        switch (strangeConfig.getAttractorType()) {
+            case Lorenz:
+                newAttractor = lorenzAttractor;
+                break;
+            case Halvorsen:
+                newAttractor = halvorsenAttractor;
+                break;
+            case NewtonLeipnik:
+                newAttractor = newtonLeipnikAttractor;
+                break;
+            case StrangeQuadratic:
+            case StrangeCubic:
+                if (!strangeConfig.getSavedAttractors().isEmpty()) {
+                    int index = MathUtils.clamp(strangeConfig.getSelectedAttractor(),
+                        0, strangeConfig.getSavedAttractors().size() - 1);
+                    newAttractor = strangeConfig.getSavedAttractors().get(index);
+                }
+                break;
+        }
+        if (newAttractor == null || !newAttractor.equals(selectedAttractor)) {
+            particles.clear();
+            camera.reset();
+            selectedAttractor = newAttractor;
+        }
     }
 
     public void render(float deltaTime) {
+        updateAttractor();
+        if (selectedAttractor == null) return;
+
         int particleCount = particleConfig.getParticleCount();
-        Attractor attractor = getAttractor();
-        for (int i = particles.size; i < particleCount + 1; i++) {
-            particles.add(new Particle(attractor));
+        for (int i = particles.size; i < particleCount; i++) {
+            particles.add(new Particle(selectedAttractor));
         }
         for (int i = particles.size; i > particleCount; i--) {
             particles.removeIndex(0);
         }
-        // Update particles
+        respawnAccumulator += deltaTime;
+        if (respawnAccumulator >= particleConfig.getRespawnTime()) {
+            particles.add(new Particle(selectedAttractor));
+            respawnAccumulator = 0f;
+        }
+
+        int sumCalculations = 0;
         stepAccumulator += deltaTime;
-        float fixedPhysicsStep = 1f / (120f * particleConfig.getSimulationSpeed());
+        float fixedPhysicsStep = 1f / (120f *
+            Math.clamp(particleConfig.getSimulationSpeed(), 1f, 10f));
         while (stepAccumulator >= fixedPhysicsStep) {
             for (Particle particle : particles) {
-                particle.update(attractor, fixedPhysicsStep,
+                particle.update(selectedAttractor, fixedPhysicsStep,
                     particleConfig.getSimulationSpeed(),
                     particleConfig.getTrailLength());
+                sumCalculations++;
             }
             stepAccumulator -= fixedPhysicsStep;
         }
 
         float maxDistance = 0f;
-        int sumParticles = 0;
+        int sumLineSegments = 0;
         Vector3 sumPosition = new Vector3();
 
         int toRemove = -1;
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.begin();
         for (int i = 0; i < particles.size; i++) {
             Particle particle = particles.get(i);
-            if (particle.isOutOfBounds() && particle.trail.size < 10) {
-                toRemove = i;
-                continue;
+            if (particle.trail.size > 0) {
+                sumLineSegments += particle.trail.size;
+                float cutoff = particleConfig.getCutoffDistance();
+                Vector3 head = particle.trail.get(particle.trail.size - 1);
+                if (head.dst(camera.getAutoCenterPoint()) > cutoff) {
+                    particle.setOutOfBounds(true);
+                    toRemove = i;
+                }
             }
-            sumParticles += particle.trail.size;
+            if (particle.isOutOfBounds()) continue;
             for (int j = 1; j < particle.trail.size; j++) {
                 Vector3 p1 = particle.trail.get(j - 1);
                 Vector3 p2 = particle.trail.get(j);
@@ -111,14 +154,22 @@ public class ParticleRenderer {
             particles.removeIndex(toRemove);
 
         shapeRenderer.end();
-        shapeRenderer.setProjectionMatrix(camera.getCombined());
+        shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
 
-        camera.setAutoCenterPoint(new Vector3(
-            sumPosition.x / sumParticles,
-            sumPosition.y / sumParticles,
-            sumPosition.z / sumParticles));
-        camera.setAutoZoom(maxDistance);
+        if(Float.isFinite(sumPosition.x) && Float.isFinite(sumPosition.y) && Float.isFinite(sumPosition.z)) {
+            Vector3 centerPoint = new Vector3(
+                sumPosition.x / sumLineSegments,
+                sumPosition.y / sumLineSegments,
+                sumPosition.z / sumLineSegments);
+            if (centerPoint.dst(Vector3.Zero) < particleConfig.getCutoffDistance())
+                camera.setAutoCenterPoint(centerPoint);
+        }
+        if (Float.isFinite(maxDistance))
+            camera.setAutoZoom(Math.min(maxDistance, particleConfig.getCutoffDistance() / 2));
         camera.update(deltaTime);
+
+        debug.setCalculations(sumCalculations);
+        debug.setLineSegments(sumLineSegments);
     }
 
     public void dispose() {

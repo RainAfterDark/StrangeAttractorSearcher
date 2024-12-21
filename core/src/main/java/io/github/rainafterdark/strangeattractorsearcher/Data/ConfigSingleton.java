@@ -1,5 +1,6 @@
 package io.github.rainafterdark.strangeattractorsearcher.Data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.Data;
 import java.io.File;
 import java.io.IOException;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class ConfigSingleton {
     private static final String CONFIG_FILE = "sas_config.json";
@@ -14,6 +16,7 @@ public class ConfigSingleton {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     // Fields
+    private StrangeConfig strange = new StrangeConfig();
     private ParticleConfig particle = new ParticleConfig();
     private ColorConfig color = new ColorConfig();
     private CameraConfig camera = new CameraConfig();

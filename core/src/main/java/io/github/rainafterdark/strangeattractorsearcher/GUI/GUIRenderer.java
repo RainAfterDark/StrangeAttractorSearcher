@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.ImGuiStyle;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 
@@ -28,7 +29,11 @@ public class GUIRenderer {
        io.getFonts().build();
        imGuiGlfw.init(windowHandle, true);
        imGuiGl3.init("#version 150");
+       ImGui.styleColorsClassic();
+
+       windows.add(new AttractorSearchWindow());
        windows.add(new ConfigWindow());
+       windows.add(new DebugWindow());
     }
 
     private void startImGui() {

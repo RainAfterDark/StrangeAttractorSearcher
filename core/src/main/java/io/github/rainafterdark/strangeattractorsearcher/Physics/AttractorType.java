@@ -6,5 +6,6 @@ public enum AttractorType {
     @JsonProperty Lorenz,
     @JsonProperty Halvorsen,
     @JsonProperty NewtonLeipnik,
-    @JsonProperty QuadraticMap
+    @JsonProperty StrangeQuadratic,
+    @JsonProperty StrangeCubic
 }

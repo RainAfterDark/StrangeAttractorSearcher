@@ -3,16 +3,19 @@ package io.github.rainafterdark.strangeattractorsearcher.Render;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Particle {
     public final Array<Vector3> trail = new Array<>();
-    @Getter private boolean outOfBounds = false;
+    @Getter @Setter
+    private boolean outOfBounds = false;
 
     public Particle(Attractor attractor) {
         Vector3 initPoint = attractor.initial();
-        float offset = 0.01f;
+        float offset = 1f;
         initPoint.x = MathUtils.random(offset, -offset);
         initPoint.y = MathUtils.random(offset, -offset);
         initPoint.z = MathUtils.random(offset, -offset);
@@ -27,8 +30,6 @@ public class Particle {
             Vector3 head = trail.get(trail.size - 1);
             float dt = deltaTime * speed;
             Vector3 step = attractor.step(head, dt);
-            if (step.dst(new Vector3()) > 500f)
-                outOfBounds = true;
             trail.add(step);
             return;
         }

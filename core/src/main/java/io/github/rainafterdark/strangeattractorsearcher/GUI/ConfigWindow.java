@@ -1,59 +1,67 @@
 package io.github.rainafterdark.strangeattractorsearcher.GUI;
 
 import imgui.ImGui;
-import imgui.flag.ImGuiTreeNodeFlags;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
-import imgui.type.ImInt;
+import io.github.rainafterdark.strangeattractorsearcher.Data.CameraConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.AttractorType;
-import io.github.rainafterdark.strangeattractorsearcher.Util.Widget;
+import io.github.rainafterdark.strangeattractorsearcher.Util.ImGuiHelper;
 
 public class ConfigWindow implements Window {
-    private final ImInt selectedAttractor = new ImInt(0);
+    private void renderPhysicsTab() {
+        ParticleConfig physics = ConfigSingleton.getInstance().getParticle();
+        ImGuiHelper.floatWidget("Simulation Speed",
+            "Controls the speed of the particles.\n" +
+                "Can cause severe lag. Tweak with caution.",
+            physics::getSimulationSpeed, physics::setSimulationSpeed, 0.01f, 0.01f, 10f, "%.2f");
+        ImGuiHelper.floatWidget("Spawn Radius",
+            "Starting random spawn radius of the particles.",
+            physics::getSpawnRadius, physics::setSpawnRadius, 0.01f, 0.01f, 10f, "%.2f");
+        ImGuiHelper.floatWidget("Cutoff Distance",
+            "Distance where the particles are destroyed.",
+            physics::getCutoffDistance, physics::setCutoffDistance, 1f, 10f, 200f, "%.2f");
+        ImGuiHelper.floatWidget("Respawn Time",
+            "Time in seconds between particle respawns.\n" +
+                "0 means particles respawn every frame.",
+            physics::getRespawnTime, physics::setRespawnTime, 0.01f, 0f, 10f, "%.2f");
+        ImGuiHelper.intWidget("Particle Count",
+            "Controls the amount of particles. Can cause lag.",
+            physics::getParticleCount, physics::setParticleCount, 5f, 1, 2000);
+        ImGuiHelper.intWidget("Trail Length",
+            "Controls the trail segments of each particle.\n" +
+                "Can cause severe lag. Tweak with caution.",
+            physics::getTrailLength, physics::setTrailLength, 5f, 10, 2000);
+    }
+
+    private void renderColorTab() {
+        ColorConfig colorConfig = ConfigSingleton.getInstance().getColor();
+        ImGuiHelper.floatWidget("Gradient Scaling",
+            "Controls how spread out the gradient for\n" +
+                "particles is. Color is based on velocity.",
+            colorConfig::getGradientScaling, colorConfig::setGradientScaling, 0.01f, 0.001f, 2f, "%.3f");
+        ImGuiHelper.gradientWidget("Gradient", colorConfig::getGradientColor, colorConfig::setGradientColor);
+    }
+
+    private void renderCameraTab() {
+        CameraConfig cameraConfig = ConfigSingleton.getInstance().getCamera();
+        ImGuiHelper.floatWidget("Horizontal Speed",
+            "Controls the horizontal speed of the camera.",
+            cameraConfig::getHorizontalMovementSpeed, cameraConfig::setHorizontalMovementSpeed, 0.01f, 0.01f, 3.14f, "%.2f");
+        ImGuiHelper.floatWidget("Vertical Speed",
+            "Controls the vertical speed of the camera.",
+            cameraConfig::getVerticalMovementSpeed, cameraConfig::setVerticalMovementSpeed, 0.01f, 0.01f, 3.14f, "%.2f");
+    }
+
     @Override
     public void render() {
         ImGui.begin("Config", ImGuiWindowFlags.AlwaysAutoResize);
-        int tabFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Leaf
-                        | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.Framed;
-        if (ImGui.treeNodeEx("Physics", tabFlags)) {
-            ImGui.unindent(ImGui.getTreeNodeToLabelSpacing());
-            ParticleConfig physics = ConfigSingleton.getInstance().getParticle();
-            Widget.floatWidget("Simulation Speed",
-                "Controls the speed of the particles. Can cause lag.",
-                physics::getSimulationSpeed, physics::setSimulationSpeed, 0.01f, 10f, 0.01f);
-            Widget.intWidget("Particle Count",
-                "Controls the amount of particles. Can cause lag.",
-                physics::getParticleCount, physics::setParticleCount, 1, 2000, 1);
-            Widget.intWidget("Trail Length",
-                "Controls the trail segments of each particle.\n" +
-                    "Can cause severe lag. Tweak with caution.",
-                physics::getTrailLength, physics::setTrailLength, 10, 2000, 1);
-            Widget.enumWidget("Attractor Type",
-                "Select from a set of preset equations,\n" +
-                    "or a randomly parameterized one (Quadratic Map).",
-                AttractorType.class, physics::getAttractorType, physics::setAttractorTypeGeneric);
-            ImGui.indent();
-            ImGui.treePop();
-        }
-        if (ImGui.treeNodeEx("Color", tabFlags)) {
-            ImGui.unindent(ImGui.getTreeNodeToLabelSpacing());
-            ColorConfig colorConfig = ConfigSingleton.getInstance().getColor();
-            Widget.floatWidget("Gradient Scaling",
-                "Controls how spread out the gradient for\n" +
-                    "particles is. Color is based on velocity.",
-                colorConfig::getGradientScaling, colorConfig::setGradientScaling, 0.001f, 2f, 0.001f);
-            ImGui.colorEdit3("Test", new float[]{0f, 0f, 0f});
-            ImGui.indent();
-            ImGui.treePop();
-        }
-        if (ImGui.treeNodeEx("Camera", tabFlags)) {
-            ImGui.unindent(ImGui.getTreeNodeToLabelSpacing());
-            ImGui.text("Hello World");
-            ImGui.indent();
-            ImGui.treePop();
-        }
+        ImGui.setWindowPos(10, 10, ImGuiCond.Once);
+        ImGuiHelper.detachableTab("Physics", this::renderPhysicsTab);
+        ImGuiHelper.detachableTab("Color", this::renderColorTab);
+        ImGuiHelper.detachableTab("Camera", this::renderCameraTab);
         ImGui.end();
     }
 }
