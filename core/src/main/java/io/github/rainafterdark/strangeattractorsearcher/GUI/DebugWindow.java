@@ -23,7 +23,7 @@ public class DebugWindow implements Window {
             frameRate = ImGui.getIO().getFramerate();
             calculations = (int) (debug.getCalculations() * frameRate);
             lineSegments = debug.getLineSegments();
-            centerPoint = debug.getAutoCenterPoint();
+            centerPoint = debug.getAutoCenterPoint().cpy();
             zoom = debug.getAutoZoom();
             timeAccumulator = 0f;
         }
@@ -36,6 +36,7 @@ public class DebugWindow implements Window {
         ImGui.text(String.format("Camera Center Point:\n" +
             "(%.3f, %.3f, %.3f)", p.x, p.y, p.z));
         ImGui.text(String.format("Camera Zoom: %.3f", zoom));
+        ImGui.checkbox("Draw Axes", debug.getDrawAxes());
         ImGui.end();
     }
 }

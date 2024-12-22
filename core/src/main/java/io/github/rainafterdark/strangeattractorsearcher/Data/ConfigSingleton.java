@@ -3,6 +3,10 @@ package io.github.rainafterdark.strangeattractorsearcher.Data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
 import lombok.Data;
 
 import java.io.File;

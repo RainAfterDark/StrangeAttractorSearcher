@@ -4,10 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import io.github.rainafterdark.strangeattractorsearcher.Data.CameraConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Data.DebugSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ParticleConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import lombok.Getter;
 
 public class Camera {

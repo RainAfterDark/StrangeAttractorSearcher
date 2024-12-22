@@ -3,11 +3,10 @@ package io.github.rainafterdark.strangeattractorsearcher.GUI;
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
-import io.github.rainafterdark.strangeattractorsearcher.Data.CameraConfig;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ColorConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ParticleConfig;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.AttractorType;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Util.ImGuiHelper;
 
 public class ConfigWindow implements Window {
@@ -17,11 +16,17 @@ public class ConfigWindow implements Window {
             "Controls the speed of the particles.\n" +
                 "Can cause severe lag. Tweak with caution.",
             physics::getSimulationSpeed, physics::setSimulationSpeed, 0.01f, 0.01f, 10f, "%.2f");
+        ImGuiHelper.floatWidget("Max Velocity", """
+                Culls the particles if they exceed this velocity
+                (per frame). Can remove erratic lines, but can
+                also remove too many particles for some attractors.""",
+            physics::getMaxVelocity, physics::setMaxVelocity, 0.01f, 0.01f, 10f, "%.2f");
         ImGuiHelper.floatWidget("Spawn Radius",
-            "Starting random spawn radius of the particles.",
+            "Starting random spawn radius of particles.",
             physics::getSpawnRadius, physics::setSpawnRadius, 0.01f, 0.01f, 10f, "%.2f");
         ImGuiHelper.floatWidget("Cutoff Distance",
-            "Distance where the particles are destroyed.",
+            "Distance where particles are destroyed.\n" +
+                "Used to zoom in on certain attractors.",
             physics::getCutoffDistance, physics::setCutoffDistance, 1f, 10f, 200f, "%.2f");
         ImGuiHelper.floatWidget("Respawn Time",
             "Time in seconds between particle respawns.\n" +
@@ -31,9 +36,14 @@ public class ConfigWindow implements Window {
             "Controls the amount of particles. Can cause lag.",
             physics::getParticleCount, physics::setParticleCount, 5f, 1, 2000);
         ImGuiHelper.intWidget("Trail Length",
-            "Controls the trail segments of each particle.\n" +
+            "Controls the trail segment length.\n" +
                 "Can cause severe lag. Tweak with caution.",
             physics::getTrailLength, physics::setTrailLength, 5f, 10, 2000);
+        ImGuiHelper.intWidget("Step Resolution", """
+                The number of physics steps per frame.
+                Can make the simulation smoother and
+                more accurate. Can cause heavy lag.""",
+            physics::getStepResolution, physics::setStepResolution, 1f, 60, 500);
     }
 
     private void renderColorTab() {

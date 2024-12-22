@@ -1,11 +1,11 @@
 package io.github.rainafterdark.strangeattractorsearcher.GUI;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import imgui.ImGui;
 import imgui.ImGuiIO;
-import imgui.ImGuiStyle;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
 
@@ -17,6 +17,7 @@ public class GUIRenderer {
     private ImGuiImplGl3 imGuiGl3;
     private InputProcessor tmpProcessor;
     private final List<Window> windows = new ArrayList<>();
+    private boolean showGUI = true;
 
     public void initImGui() {
        imGuiGlfw = new ImGuiImplGlfw();
@@ -31,7 +32,7 @@ public class GUIRenderer {
        imGuiGl3.init("#version 150");
        ImGui.styleColorsClassic();
 
-       windows.add(new AttractorSearchWindow());
+       windows.add(new SearchWindow());
        windows.add(new ConfigWindow());
        windows.add(new DebugWindow());
     }
@@ -56,7 +57,14 @@ public class GUIRenderer {
        }
     }
 
+    private void handleInput() {
+       if (Gdx.input.isKeyJustPressed(Input.Keys.H))
+            showGUI = !showGUI;
+    }
+
     public void render() {
+        handleInput();
+        if (!showGUI) return;
         startImGui();
         for (Window window : windows) {
             window.render();

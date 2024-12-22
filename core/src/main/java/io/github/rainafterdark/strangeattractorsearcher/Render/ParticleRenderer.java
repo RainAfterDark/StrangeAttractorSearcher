@@ -1,14 +1,25 @@
 package io.github.rainafterdark.strangeattractorsearcher.Render;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
+import imgui.ImGui;
+import imgui.flag.ImGuiKey;
 import io.github.rainafterdark.strangeattractorsearcher.Data.*;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.*;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.AizawaAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.HalvorsenAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.LorenzAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.NewtonLeipnikAttractor;
 
-import static java.lang.Float.NaN;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParticleRenderer {
     private StrangeConfig strangeConfig;
@@ -17,15 +28,14 @@ public class ParticleRenderer {
     private DebugSingleton debug;
 
     private final LorenzAttractor lorenzAttractor = new LorenzAttractor();
+    private final AizawaAttractor aizawaAttractor = new AizawaAttractor();
     private final HalvorsenAttractor halvorsenAttractor = new HalvorsenAttractor();
     private final NewtonLeipnikAttractor newtonLeipnikAttractor = new NewtonLeipnikAttractor();
 
     private Camera camera;
     private ShapeRenderer shapeRenderer;
-    private Array<Particle> particles;
-    private AttractorType selectedAttractorType;
+    private List<Particle> particles;
     private Attractor selectedAttractor;
-    private Thread attractorSearchThread;
     private float stepAccumulator = 0f;
     private float respawnAccumulator = 0f;
 
@@ -35,23 +45,48 @@ public class ParticleRenderer {
         particleConfig = config.getParticle();
         colorConfig = config.getColor();
         debug = DebugSingleton.getInstance();
-
         camera = new Camera();
         camera.init();
-
         shapeRenderer = new ShapeRenderer();
         shapeRenderer.setAutoShapeType(true);
-        particles = new Array<>();
+        particles = new ArrayList<>();
+    }
+
+    private void reset() {
+        particles.clear();
+        camera.reset();
+    }
+
+    private void previousAttractor() {
+        int index = strangeConfig.getSelectedAttractor() - 1;
+        if (index < 0) {
+            index = strangeConfig.getSavedAttractors().size() - 1;
+        }
+        strangeConfig.setSelectedAttractor(index);
+    }
+
+    private void nextAttractor() {
+        int index = strangeConfig.getSelectedAttractor() + 1;
+        if (index >= strangeConfig.getSavedAttractors().size()) {
+            index = 0;
+        }
+        strangeConfig.setSelectedAttractor(index);
+    }
+
+    private void handleInput() {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) reset();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) previousAttractor();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) nextAttractor();
     }
 
     private void drawAxes() {
         float axisLength = 50f;
         shapeRenderer.begin();
-        shapeRenderer.setColor(Color.RED.cpy().sub(0, 0, 0, 0.75f));
+        shapeRenderer.setColor(Color.RED.cpy().sub(0, 0, 0, 0.5f));
         shapeRenderer.line(-axisLength, 0, 0, axisLength, 0, 0);
-        shapeRenderer.setColor(Color.GREEN.cpy().sub(0, 0, 0, 0.75f));
+        shapeRenderer.setColor(Color.GREEN.cpy().sub(0, 0, 0, 0.5f));
         shapeRenderer.line(0, -axisLength, 0, 0, axisLength, 0);
-        shapeRenderer.setColor(Color.SKY.cpy().sub(0, 0, 0, 0.75f));
+        shapeRenderer.setColor(Color.SKY.cpy().sub(0, 0, 0, 0.5f));
         shapeRenderer.line(0, 0, -axisLength, 0, 0, axisLength);
         shapeRenderer.end();
     }
@@ -59,17 +94,19 @@ public class ParticleRenderer {
     private void updateAttractor() {
         Attractor newAttractor = null;
         switch (strangeConfig.getAttractorType()) {
-            case Lorenz:
+            case PresetLorenz:
                 newAttractor = lorenzAttractor;
                 break;
-            case Halvorsen:
+            case PresetAizawa:
+                newAttractor = aizawaAttractor;
+                break;
+            case PresetHalvorsen:
                 newAttractor = halvorsenAttractor;
                 break;
-            case NewtonLeipnik:
+            case PresetNewtonLeipnik:
                 newAttractor = newtonLeipnikAttractor;
                 break;
-            case StrangeQuadratic:
-            case StrangeCubic:
+            default:
                 if (!strangeConfig.getSavedAttractors().isEmpty()) {
                     int index = MathUtils.clamp(strangeConfig.getSelectedAttractor(),
                         0, strangeConfig.getSavedAttractors().size() - 1);
@@ -78,22 +115,22 @@ public class ParticleRenderer {
                 break;
         }
         if (newAttractor == null || !newAttractor.equals(selectedAttractor)) {
-            particles.clear();
-            camera.reset();
+            reset();
             selectedAttractor = newAttractor;
         }
     }
 
     public void render(float deltaTime) {
+        handleInput();
         updateAttractor();
         if (selectedAttractor == null) return;
 
         int particleCount = particleConfig.getParticleCount();
-        for (int i = particles.size; i < particleCount; i++) {
+        for (int i = particles.size(); i < particleCount; i++) {
             particles.add(new Particle(selectedAttractor));
         }
-        for (int i = particles.size; i > particleCount; i--) {
-            particles.removeIndex(0);
+        for (int i = particles.size(); i > particleCount; i--) {
+            particles.removeFirst();
         }
         respawnAccumulator += deltaTime;
         if (respawnAccumulator >= particleConfig.getRespawnTime()) {
@@ -103,7 +140,7 @@ public class ParticleRenderer {
 
         int sumCalculations = 0;
         stepAccumulator += deltaTime;
-        float fixedPhysicsStep = 1f / (120f *
+        float fixedPhysicsStep = 1f / (particleConfig.getStepResolution() *
             Math.clamp(particleConfig.getSimulationSpeed(), 1f, 10f));
         while (stepAccumulator >= fixedPhysicsStep) {
             for (Particle particle : particles) {
@@ -119,27 +156,23 @@ public class ParticleRenderer {
         int sumLineSegments = 0;
         Vector3 sumPosition = new Vector3();
 
-        int toRemove = -1;
         shapeRenderer.begin();
-        for (int i = 0; i < particles.size; i++) {
-            Particle particle = particles.get(i);
-            if (particle.trail.size > 0) {
-                sumLineSegments += particle.trail.size;
-                float cutoff = particleConfig.getCutoffDistance();
-                Vector3 head = particle.trail.get(particle.trail.size - 1);
-                if (head.dst(camera.getAutoCenterPoint()) > cutoff) {
-                    particle.setOutOfBounds(true);
-                    toRemove = i;
-                }
-            }
+        for (Particle particle : particles) {
             if (particle.isOutOfBounds()) continue;
+
             for (int j = 1; j < particle.trail.size; j++) {
                 Vector3 p1 = particle.trail.get(j - 1);
                 Vector3 p2 = particle.trail.get(j);
-                maxDistance = Math.max(p2.dst(camera.getAutoCenterPoint()), maxDistance);
+                float centerDistance = p2.dst(camera.getAutoCenterPoint());
+                if (!Float.isFinite(centerDistance)) {
+                    particle.setOutOfBounds(true);
+                    break;
+                }
+                maxDistance = Math.max(centerDistance, maxDistance);
                 sumPosition.add(p2);
 
                 float velocity = p2.dst(p1);
+                if (velocity > particleConfig.getMaxVelocity()) continue;
                 float minVelocity = 0f;
                 float maxVelocity = colorConfig.getGradientScaling();
                 float normalizedVelocity = MathUtils.clamp((velocity - minVelocity) / (maxVelocity - minVelocity), 0f, 1f);
@@ -148,24 +181,23 @@ public class ParticleRenderer {
 
                 shapeRenderer.setColor(trailColor);
                 shapeRenderer.line(p1, p2);
+                sumLineSegments++;
             }
         }
-        if (toRemove != -1)
-            particles.removeIndex(toRemove);
 
+        particles.removeIf(Particle::isOutOfBounds);
         shapeRenderer.end();
+        if (debug.getDrawAxes().get()) drawAxes();
         shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
 
-        if(Float.isFinite(sumPosition.x) && Float.isFinite(sumPosition.y) && Float.isFinite(sumPosition.z)) {
-            Vector3 centerPoint = new Vector3(
+        float halfDistance = particleConfig.getCutoffDistance() / 2f;
+        Vector3 centerPoint = new Vector3(
                 sumPosition.x / sumLineSegments,
                 sumPosition.y / sumLineSegments,
                 sumPosition.z / sumLineSegments);
-            if (centerPoint.dst(Vector3.Zero) < particleConfig.getCutoffDistance())
-                camera.setAutoCenterPoint(centerPoint);
-        }
-        if (Float.isFinite(maxDistance))
-            camera.setAutoZoom(Math.min(maxDistance, particleConfig.getCutoffDistance() / 2));
+        if (centerPoint.dst(Vector3.Zero) < particleConfig.getCutoffDistance())
+            camera.setAutoCenterPoint(centerPoint);
+        camera.setAutoZoom(MathUtils.clamp(maxDistance, 0f, halfDistance));
         camera.update(deltaTime);
 
         debug.setCalculations(sumCalculations);

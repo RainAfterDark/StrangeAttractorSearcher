@@ -2,6 +2,7 @@ package io.github.rainafterdark.strangeattractorsearcher.Data;
 
 import com.badlogic.gdx.math.Vector3;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import imgui.type.ImBoolean;
 import lombok.Data;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,6 +14,7 @@ public class DebugSingleton {
     private int lineSegments = 0;
     private Vector3 autoCenterPoint = new Vector3();
     private float autoZoom = 0f;
+    private ImBoolean drawAxes = new ImBoolean(false);
 
     private DebugSingleton() {
     }

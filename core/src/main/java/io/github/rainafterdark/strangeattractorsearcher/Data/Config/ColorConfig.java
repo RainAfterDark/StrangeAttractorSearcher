@@ -1,4 +1,4 @@
-package io.github.rainafterdark.strangeattractorsearcher.Data;
+package io.github.rainafterdark.strangeattractorsearcher.Data.Config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.rainafterdark.strangeattractorsearcher.Util.Gradient;

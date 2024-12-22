@@ -1,6 +1,7 @@
 package io.github.rainafterdark.strangeattractorsearcher.Util;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import imgui.ImGui;
 import imgui.flag.ImGuiColorEditFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -40,7 +41,7 @@ public class ImGuiHelper {
         int currentValue = getter.get();
         int[] buffer = { currentValue };
         if (ImGui.dragInt(label, buffer, vSpeed, min, max)) {
-            setter.accept(buffer[0]);
+            setter.accept(MathUtils.clamp(buffer[0], min, max));
             ConfigSingleton.getInstance().saveToFile();
             changed = true;
         }
@@ -54,7 +55,7 @@ public class ImGuiHelper {
         float currentValue = getter.get();
         float[] buffer = { currentValue };
         if (ImGui.dragFloat(label, buffer, vSpeed, min, max, format)) {
-            setter.accept(buffer[0]);
+            setter.accept(MathUtils.clamp(buffer[0], min, max));
             ConfigSingleton.getInstance().saveToFile();
             changed = true;
         }
@@ -82,7 +83,7 @@ public class ImGuiHelper {
         boolean empty = items.isEmpty();
         String[] itemNames = items.stream().map(Object::toString).toArray(String[]::new);
         for (int i = 0; i < itemNames.length; i++) {
-            itemNames[i] = String.format("[%d] %s", i, itemNames[i]);
+            itemNames[i] = String.format("[%02d] %s", i, itemNames[i]);
         }
         if (empty) itemNames = new String[] { "<Empty>" };
         ImInt currentItem = new ImInt(empty ? 0 : getter.get());
@@ -106,14 +107,14 @@ public class ImGuiHelper {
         ImGui.sameLine();
         if (ImGui.button("<##Prev" + label) && !empty) {
             int newIndex = currentItem.get() - 1;
-            if (newIndex < 0) newIndex = 0;
+            if (newIndex < 0) newIndex = items.size() - 1;
             setter.accept(newIndex);
             changed = true;
         }
         ImGui.sameLine();
         if (ImGui.button(">##Next" + label) && !empty) {
             int newIndex = currentItem.get() + 1;
-            if (newIndex >= items.size()) newIndex = items.size() - 1;
+            if (newIndex >= items.size()) newIndex = 0;
             setter.accept(newIndex);
             changed = true;
         }

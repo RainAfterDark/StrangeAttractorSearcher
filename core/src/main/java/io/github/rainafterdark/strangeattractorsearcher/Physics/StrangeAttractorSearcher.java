@@ -3,7 +3,11 @@ package io.github.rainafterdark.strangeattractorsearcher.Physics;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Data.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeCubicAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuadraticAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuarticAttractor;
 
 public class StrangeAttractorSearcher implements Runnable {
     private final StrangeConfig config = ConfigSingleton.getInstance().getStrange();
@@ -24,6 +28,7 @@ public class StrangeAttractorSearcher implements Runnable {
         int numCoefficients = switch (attractorType) {
             case StrangeQuadratic -> 30;
             case StrangeCubic -> 60;
+            case StrangeQuartic -> 105;
             default -> 0;
         };
         float[] coefficients = new float[numCoefficients];
@@ -33,6 +38,7 @@ public class StrangeAttractorSearcher implements Runnable {
         return switch (attractorType) {
             case StrangeQuadratic -> new StrangeQuadraticAttractor(coefficients);
             case StrangeCubic -> new StrangeCubicAttractor(coefficients);
+            case StrangeQuartic -> new StrangeQuarticAttractor(coefficients);
             default -> null;
         };
     }

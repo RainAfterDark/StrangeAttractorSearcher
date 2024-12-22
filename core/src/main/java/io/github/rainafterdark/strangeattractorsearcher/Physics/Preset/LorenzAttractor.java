@@ -1,6 +1,7 @@
-package io.github.rainafterdark.strangeattractorsearcher.Physics;
+package io.github.rainafterdark.strangeattractorsearcher.Physics.Preset;
 
 import com.badlogic.gdx.math.Vector3;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
 
 public class LorenzAttractor implements Attractor {
     @Override

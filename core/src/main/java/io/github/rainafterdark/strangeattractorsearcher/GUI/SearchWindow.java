@@ -4,14 +4,14 @@ import imgui.ImGui;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Data.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.AttractorType;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.StrangeAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.StrangeAttractorCallback;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.StrangeAttractorSearcher;
 import io.github.rainafterdark.strangeattractorsearcher.Util.ImGuiHelper;
 
-public class AttractorSearchWindow implements Window {
+public class SearchWindow implements Window {
     private final StrangeConfig config = ConfigSingleton.getInstance().getStrange();
     private StrangeAttractorSearcher searcher;
     private Thread searchThread;
@@ -37,6 +37,7 @@ public class AttractorSearchWindow implements Window {
             }, attractorType);
         searchThread = new Thread(searcher);
         searchThread.start();
+        lastAttempts = -1;
     }
 
     @Override
@@ -47,15 +48,16 @@ public class AttractorSearchWindow implements Window {
                 "Select from a set of preset equations,\n" +
                 "or a randomly parameterized strange one.",
             AttractorType.class, config::getAttractorType, config::setAttractorTypeGeneric);
-        boolean shouldDisable = config.getSavedAttractors().isEmpty() ||
-            (config.getAttractorType() != AttractorType.StrangeQuadratic &&
-                config.getAttractorType() != AttractorType.StrangeCubic);
+        boolean shouldDisable = config.getSavedAttractors().isEmpty() || (
+                config.getAttractorType() != AttractorType.StrangeQuadratic &&
+                config.getAttractorType() != AttractorType.StrangeCubic &&
+                config.getAttractorType() != AttractorType.StrangeQuartic);
         if (searchThread != null || shouldDisable) ImGui.beginDisabled();
         ImGuiHelper.intWidget("Max Iterations",
-            "Controls the maximum iterations for attractor search.",
+            "Maximum iterations to calculate the Lyapunov exponent.",
             config::getMaxIterations, config::setMaxIterations, 10f, 500, 10000);
         ImGuiHelper.floatWidget("Search Radius",
-            "Controls the search radius for attractor coefficients.",
+            "The range of numbers for attractor coefficients.",
             config::getSearchRadius, config::setSearchRadius, 0.01f, 0.01f, 10f, "%.2f");
         ImGuiHelper.floatWidget("Divergence Threshold",
             "Controls the divergence threshold for attractor search.",
@@ -64,7 +66,8 @@ public class AttractorSearchWindow implements Window {
             "Controls the convergence threshold for attractor search.",
             config::getConvergenceThreshold, config::setConvergenceThreshold, 0.001f, 1e-8f, 1f, "%.2e");
         ImGuiHelper.floatWidget("Lyapunov Threshold",
-            "Controls the lyapunov threshold for attractor search.",
+            "The lyapunov exponent threshold for attractor search.\n" +
+                "Set as high as possible that will still produce results.",
             config::getLyapunovThreshold, config::setLyapunovThreshold, 0.001f, 1e-8f, 0.01f, "%.2e");
         if (searchThread != null && !shouldDisable) ImGui.endDisabled();
 
@@ -88,11 +91,11 @@ public class AttractorSearchWindow implements Window {
 
         if (lastAttempts != -1) {
             ImGui.sameLine();
-            if (lastSuccess) {
-                ImGui.text("Success! " + lastAttempts + " attempts.");
-            } else {
-                ImGui.text("Failed. " + lastAttempts + " attempts.");
-            }
+            String status = lastSuccess ? "Success!" : "Failed.";
+            ImGui.text(String.format("%s %d attempts.", status, lastAttempts));
+        } else if (searchThread != null) {
+            ImGui.sameLine();
+            ImGui.text("Searching...");
         }
         if (shouldDisable) ImGui.endDisabled();
         ImGui.end();

@@ -1,8 +1,8 @@
-package io.github.rainafterdark.strangeattractorsearcher.Data;
+package io.github.rainafterdark.strangeattractorsearcher.Data.Config;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.AttractorType;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.StrangeAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class StrangeConfig {
-    private AttractorType attractorType = AttractorType.StrangeQuadratic;
+    private AttractorType attractorType = AttractorType.PresetLorenz;
     private List<StrangeAttractor> savedAttractors = new ArrayList<>();
     private int selectedAttractor = 0;
     private int maxIterations = 3000;
