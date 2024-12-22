@@ -130,7 +130,7 @@ public class ParticleRenderer {
             particles.add(new Particle(selectedAttractor));
         }
         for (int i = particles.size(); i > particleCount; i--) {
-            particles.removeFirst();
+            particles.remove(0);
         }
         respawnAccumulator += deltaTime;
         if (respawnAccumulator >= particleConfig.getRespawnTime()) {
@@ -141,7 +141,7 @@ public class ParticleRenderer {
         int sumCalculations = 0;
         stepAccumulator += deltaTime;
         float fixedPhysicsStep = 1f / (particleConfig.getStepResolution() *
-            Math.clamp(particleConfig.getSimulationSpeed(), 1f, 10f));
+            MathUtils.clamp(particleConfig.getSimulationSpeed(), 1f, 10f));
         while (stepAccumulator >= fixedPhysicsStep) {
             for (Particle particle : particles) {
                 particle.update(selectedAttractor, fixedPhysicsStep,

@@ -1,12 +1,9 @@
 package io.github.rainafterdark.strangeattractorsearcher.Physics.Strange;
 
 import com.badlogic.gdx.math.Vector3;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StrangeQuarticAttractor extends StrangeAttractor {
-    @JsonCreator
-    public StrangeQuarticAttractor(@JsonProperty("coefficients") float[] coefficients) {
+    public StrangeQuarticAttractor(float[] coefficients) {
         super(coefficients);
     }
 

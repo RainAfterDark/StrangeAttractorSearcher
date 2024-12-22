@@ -20,21 +20,21 @@ public class GUIRenderer {
     private boolean showGUI = true;
 
     public void initImGui() {
-       imGuiGlfw = new ImGuiImplGlfw();
-       imGuiGl3 = new ImGuiImplGl3();
-       long windowHandle = ((Lwjgl3Graphics) Gdx.graphics).getWindow().getWindowHandle();
-       ImGui.createContext();
-       ImGuiIO io = ImGui.getIO();
-       io.setIniFilename(null);
-       io.getFonts().addFontDefault();
-       io.getFonts().build();
-       imGuiGlfw.init(windowHandle, true);
-       imGuiGl3.init("#version 150");
-       ImGui.styleColorsClassic();
+        imGuiGlfw = new ImGuiImplGlfw();
+        imGuiGl3 = new ImGuiImplGl3();
+        long windowHandle = ((Lwjgl3Graphics) Gdx.graphics).getWindow().getWindowHandle();
+        ImGui.createContext();
+        ImGuiIO io = ImGui.getIO();
+        io.setIniFilename(null);
+        io.getFonts().addFontDefault();
+        io.getFonts().build();
+        imGuiGlfw.init(windowHandle, true);
+        imGuiGl3.init("#version 150");
+        ImGui.styleColorsClassic();
 
-       windows.add(new SearchWindow());
-       windows.add(new ConfigWindow());
-       windows.add(new DebugWindow());
+        windows.add(new SearchWindow());
+        windows.add(new ConfigWindow());
+        windows.add(new InfoWindow());
     }
 
     private void startImGui() {

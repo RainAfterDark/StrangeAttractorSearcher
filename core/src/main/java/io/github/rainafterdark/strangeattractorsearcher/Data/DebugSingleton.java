@@ -1,11 +1,9 @@
 package io.github.rainafterdark.strangeattractorsearcher.Data;
 
 import com.badlogic.gdx.math.Vector3;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import imgui.type.ImBoolean;
 import lombok.Data;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class DebugSingleton {
     private static DebugSingleton instance;

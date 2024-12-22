@@ -22,10 +22,10 @@ sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 mainClassName = 'io.github.rainafterdark.strangeattractorsearcher.lwjgl3.Lwjgl3Launcher'
 application.setMainClass(mainClassName)
 eclipse.project.name = appName + '-lwjgl3'
-java.sourceCompatibility = 23
-java.targetCompatibility = 23
+java.sourceCompatibility = 8
+java.targetCompatibility = 8
 if (JavaVersion.current().isJava9Compatible()) {
-        compileJava.options.release.set(23)
+        compileJava.options.release.set(8)
 }
 
 dependencies {
@@ -82,12 +82,12 @@ construo {
       create("linuxX64", Target.Linux) {
         architecture.set(Target.Architecture.X86_64)
         //jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_linux_hotspot_17.0.12_7.tar.gz")
-        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-23-x64-linux-jdk.tar.gz")
+        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz")
       }
       create("macM1", Target.MacOs) {
         architecture.set(Target.Architecture.AARCH64)
         //jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.12_7.tar.gz")
-        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-23-aarch64-macos-jdk.tar.gz")
+        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-8-aarch64-macos-jdk.tar.gz")
         // macOS needs an identifier
         identifier.set("io.github.rainafterdark.strangeattractorsearcher." + appName)
         // Optional: icon for macOS
@@ -96,7 +96,7 @@ construo {
       create("macX64", Target.MacOs) {
         architecture.set(Target.Architecture.X86_64)
         //jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_mac_hotspot_17.0.12_7.tar.gz")
-        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-23-x64-macos-jdk.tar.gz")
+        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-8-x64-macos-jdk.tar.gz")
         // macOS needs an identifier
         identifier.set("io.github.rainafterdark.strangeattractorsearcher." + appName)
         // Optional: icon for macOS
@@ -105,7 +105,7 @@ construo {
       create("winX64", Target.Windows) {
         architecture.set(Target.Architecture.X86_64)
         //jdkUrl.set("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.12%2B7/OpenJDK17U-jdk_x64_windows_hotspot_17.0.12_7.zip")
-        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-23-x64-windows-jdk.zip")
+        jdkUrl.set("https://corretto.aws/downloads/latest/amazon-corretto-8-x64-windows-jdk.zip")
         // Uncomment the next line to show a console when the game runs, to print messages.
         //useConsole.set(true)
       }

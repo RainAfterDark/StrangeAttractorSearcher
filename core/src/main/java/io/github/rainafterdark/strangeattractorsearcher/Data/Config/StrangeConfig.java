@@ -1,6 +1,5 @@
 package io.github.rainafterdark.strangeattractorsearcher.Data.Config;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.AttractorType;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
 import lombok.Data;
@@ -8,7 +7,6 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class StrangeConfig {
     private AttractorType attractorType = AttractorType.PresetLorenz;

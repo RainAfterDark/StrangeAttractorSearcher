@@ -1,9 +1,7 @@
 package io.github.rainafterdark.strangeattractorsearcher.Data.Config;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class ParticleConfig {
     private float simulationSpeed = 1f;

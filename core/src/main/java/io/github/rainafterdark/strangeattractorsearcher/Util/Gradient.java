@@ -28,7 +28,7 @@ public class Gradient {
 
         if (colors.size() == 1) {
             // Return the single color if only one is defined
-            return colors.getFirst();
+            return colors.get(0);
         }
 
         // Determine the segment based on the normalized value

@@ -1,23 +1,28 @@
 package io.github.rainafterdark.strangeattractorsearcher.Data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeCubicAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuadraticAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuarticAttractor;
+import io.github.rainafterdark.strangeattractorsearcher.Util.PropertyBasedInterfaceMarshal;
 import lombok.Data;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class ConfigSingleton {
     private static final String CONFIG_FILE = "sas_config.json";
     private static ConfigSingleton instance;
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private transient final Gson gson;
 
     // Fields
     private StrangeConfig strange = new StrangeConfig();
@@ -26,7 +31,17 @@ public class ConfigSingleton {
     private CameraConfig camera = new CameraConfig();
 
     // Private constructor for singleton
-    private ConfigSingleton() {}
+    private ConfigSingleton() {
+        gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(StrangeAttractor.class,
+                new PropertyBasedInterfaceMarshal(
+                    StrangeQuadraticAttractor.class,
+                    StrangeCubicAttractor.class,
+                    StrangeQuarticAttractor.class
+                ))
+            .create();
+    }
 
     // Get the singleton instance
     public static synchronized ConfigSingleton getInstance() {
@@ -39,9 +54,8 @@ public class ConfigSingleton {
 
     // Save the current configuration to the JSON file
     public void saveToFile() {
-        try {
-            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(new File(CONFIG_FILE), getInstance());
+        try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
+            gson.toJson(getInstance(), writer);
         } catch (IOException e) {
             System.err.println("Failed to save configuration: " + e.getMessage());
         }
@@ -51,13 +65,11 @@ public class ConfigSingleton {
     private void loadFromFile() {
         File file = new File(CONFIG_FILE);
         if (file.exists()) {
-            try {
-                // Map the JSON values to existing fields
-                mapper.readerForUpdating(getInstance()).readValue(file);
+            try (FileReader reader = new FileReader(file)) {
+                instance = gson.fromJson(reader, ConfigSingleton.class);
             } catch (IOException e) {
                 System.err.println("Failed to load configuration, using defaults: " + e.getMessage());
             }
         }
     }
 }
-

@@ -5,8 +5,9 @@ import imgui.ImGui;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
 import io.github.rainafterdark.strangeattractorsearcher.Data.DebugSingleton;
+import io.github.rainafterdark.strangeattractorsearcher.Util.ImGuiHelper;
 
-public class DebugWindow implements Window {
+public class InfoWindow implements Window {
     private final DebugSingleton debug = DebugSingleton.getInstance();
     private float timeAccumulator = 0f;
     private float frameRate = 0f;
@@ -15,8 +16,7 @@ public class DebugWindow implements Window {
     private Vector3 centerPoint = new Vector3();
     private float zoom = 0f;
 
-    @Override
-    public void render() {
+    private void poll() {
         timeAccumulator += ImGui.getIO().getDeltaTime();
         float pollRate = 0.25f;
         if (timeAccumulator > pollRate) {
@@ -27,8 +27,9 @@ public class DebugWindow implements Window {
             zoom = debug.getAutoZoom();
             timeAccumulator = 0f;
         }
-        ImGui.begin("Debug", ImGuiWindowFlags.AlwaysAutoResize);
-        ImGui.setWindowPos(ImGui.getMainViewport().getSizeX() - 200,10, ImGuiCond.Once);
+    }
+
+    private void renderDebugTab() {
         ImGui.text(String.format("FPS: %.3f", frameRate));
         ImGui.text(String.format("Calculations: %,d/s", calculations));
         ImGui.text(String.format("Line Segments: %,d", lineSegments));
@@ -37,6 +38,23 @@ public class DebugWindow implements Window {
             "(%.3f, %.3f, %.3f)", p.x, p.y, p.z));
         ImGui.text(String.format("Camera Zoom: %.3f", zoom));
         ImGui.checkbox("Draw Axes", debug.getDrawAxes());
+    }
+
+    private void renderKeybindingsTab() {
+        ImGui.text("R: Reset Simulation");
+        ImGui.text("H: Hide/Show UI");
+        ImGui.text("<: Previous Attractor");
+        ImGui.text(">: Next Attractor");
+    }
+
+    @Override
+    public void render() {
+        poll();
+        ImGui.begin("Info", ImGuiWindowFlags.AlwaysAutoResize);
+        ImGui.setWindowPos(ImGui.getMainViewport().getSizeX() - 250,10, ImGuiCond.Once);
+        ImGui.text("Strange Attractor Searcher v1.0");
+        ImGuiHelper.treeTab("Debug", false, this::renderDebugTab);
+        ImGuiHelper.treeTab("Keybindings", false, this::renderKeybindingsTab);
         ImGui.end();
     }
 }

@@ -48,10 +48,10 @@ public class SearchWindow implements Window {
                 "Select from a set of preset equations,\n" +
                 "or a randomly parameterized strange one.",
             AttractorType.class, config::getAttractorType, config::setAttractorTypeGeneric);
-        boolean shouldDisable = config.getSavedAttractors().isEmpty() || (
+        boolean shouldDisable =
                 config.getAttractorType() != AttractorType.StrangeQuadratic &&
                 config.getAttractorType() != AttractorType.StrangeCubic &&
-                config.getAttractorType() != AttractorType.StrangeQuartic);
+                config.getAttractorType() != AttractorType.StrangeQuartic;
         if (searchThread != null || shouldDisable) ImGui.beginDisabled();
         ImGuiHelper.intWidget("Max Iterations",
             "Maximum iterations to calculate the Lyapunov exponent.",

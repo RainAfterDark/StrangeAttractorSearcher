@@ -16,10 +16,10 @@ public class ConfigWindow implements Window {
             "Controls the speed of the particles.\n" +
                 "Can cause severe lag. Tweak with caution.",
             physics::getSimulationSpeed, physics::setSimulationSpeed, 0.01f, 0.01f, 10f, "%.2f");
-        ImGuiHelper.floatWidget("Max Velocity", """
-                Culls the particles if they exceed this velocity
-                (per frame). Can remove erratic lines, but can
-                also remove too many particles for some attractors.""",
+        ImGuiHelper.floatWidget("Max Velocity",
+                "Culls the particles if they exceed this velocity\n" +
+                "(per frame). Can remove erratic lines, but can\n" +
+                "also remove too many particles for some attractors.",
             physics::getMaxVelocity, physics::setMaxVelocity, 0.01f, 0.01f, 10f, "%.2f");
         ImGuiHelper.floatWidget("Spawn Radius",
             "Starting random spawn radius of particles.",
@@ -39,10 +39,10 @@ public class ConfigWindow implements Window {
             "Controls the trail segment length.\n" +
                 "Can cause severe lag. Tweak with caution.",
             physics::getTrailLength, physics::setTrailLength, 5f, 10, 2000);
-        ImGuiHelper.intWidget("Step Resolution", """
-                The number of physics steps per frame.
-                Can make the simulation smoother and
-                more accurate. Can cause heavy lag.""",
+        ImGuiHelper.intWidget("Step Resolution",
+                "The number of physics steps per frame.\n" +
+                "Can make the simulation smoother and\n" +
+                "more accurate. Can cause heavy lag.",
             physics::getStepResolution, physics::setStepResolution, 1f, 60, 500);
     }
 
@@ -69,9 +69,9 @@ public class ConfigWindow implements Window {
     public void render() {
         ImGui.begin("Config", ImGuiWindowFlags.AlwaysAutoResize);
         ImGui.setWindowPos(10, 10, ImGuiCond.Once);
-        ImGuiHelper.detachableTab("Physics", this::renderPhysicsTab);
-        ImGuiHelper.detachableTab("Color", this::renderColorTab);
-        ImGuiHelper.detachableTab("Camera", this::renderCameraTab);
+        ImGuiHelper.treeTab("Physics", true, this::renderPhysicsTab);
+        ImGuiHelper.treeTab("Color", true, this::renderColorTab);
+        ImGuiHelper.treeTab("Camera", true, this::renderCameraTab);
         ImGui.end();
     }
 }

@@ -28,8 +28,9 @@ public class ImGuiHelper {
         tooltip(hint);
     }
 
-    public static void detachableTab(String label, Runnable renderFunction) {
-        int tabFlags = ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Framed;
+    public static void treeTab(String label, boolean defaultOpen, Runnable renderFunction) {
+        int tabFlags = ImGuiTreeNodeFlags.Framed;
+        if (defaultOpen) tabFlags |= ImGuiTreeNodeFlags.DefaultOpen;
         if (ImGui.treeNodeEx(label + " ", tabFlags)) {
             renderFunction.run();
             ImGui.treePop();
@@ -125,7 +126,7 @@ public class ImGuiHelper {
 
     public static boolean gradientWidget(String label, Supplier<Gradient> getter, Consumer<Gradient> setter) {
         AtomicBoolean changed = new AtomicBoolean(false);
-        detachableTab(label, () -> {
+        treeTab(label, true, () -> {
             Gradient currentValue = getter.get();
             List<Color> colors = currentValue.getColors();
 
@@ -179,7 +180,6 @@ public class ImGuiHelper {
                     changed.set(true);
                 }
             }
-
             if (toMoveDown != -1) {
                 if (toMoveDown < colors.size() - 1) {
                     Color temp = colors.get(toMoveDown);
@@ -188,26 +188,21 @@ public class ImGuiHelper {
                     changed.set(true);
                 }
             }
-
             if (toAdd != -1) {
                 colors.add(toAdd + 1, new Color(colors.get(toAdd)));
                 changed.set(true);
             }
-
             if (toRemove != -1) {
                 colors.remove(toRemove);
                 changed.set(true);
             }
-
             if (toRandomize != -1) {
                 colors.set(toRandomize, ColorHelper.getRandom());
                 changed.set(true);
             }
         });
 
-        if (changed.get()) {
-            ConfigSingleton.getInstance().saveToFile();
-        }
+        if (changed.get()) ConfigSingleton.getInstance().saveToFile();
         return changed.get();
     }
 }
