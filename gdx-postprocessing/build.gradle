@@ -1,0 +1,51 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+version = '1.0'
+group = 'com.github.Anuken'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+repositories {
+    mavenCentral()
+ 	maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    jcenter()
+}
+
+ext {
+	gdxVersion = '1.12.1'
+}
+
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
+  archiveClassifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+tasks.register('javadocJar', Jar) {
+  dependsOn javadoc
+  archiveClassifier = 'javadoc'
+  from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+dependencies {
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+publishing {
+    repositories {
+       flatDir {
+           dirs 'repos'
+       }
+    }
+}

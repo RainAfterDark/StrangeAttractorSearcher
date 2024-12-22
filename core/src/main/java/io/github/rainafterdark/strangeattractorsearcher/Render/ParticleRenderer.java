@@ -3,6 +3,7 @@ package io.github.rainafterdark.strangeattractorsearcher.Render;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
@@ -32,6 +33,8 @@ public class ParticleRenderer {
 
     private Camera camera;
     private ShapeRenderer shapeRenderer;
+    private PostProcessing postProcessing;
+
     private List<Particle> particles;
     private Attractor selectedAttractor;
     private float stepAccumulator = 0f;
@@ -45,9 +48,16 @@ public class ParticleRenderer {
         debug = DebugSingleton.getInstance();
         camera = new Camera();
         camera.init();
-        shapeRenderer = new ShapeRenderer();
+        shapeRenderer = new ShapeRenderer(10000);
         shapeRenderer.setAutoShapeType(true);
+        postProcessing = new PostProcessing();
+        postProcessing.init();
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         particles = new ArrayList<>();
+    }
+
+    public void resume() {
+        postProcessing.rebind();
     }
 
     private void reset() {
@@ -118,11 +128,7 @@ public class ParticleRenderer {
         }
     }
 
-    public void render(float deltaTime) {
-        handleInput();
-        updateAttractor();
-        if (selectedAttractor == null) return;
-
+    private void spawnParticles(float deltaTime) {
         int particleCount = particleConfig.getParticleCount();
         for (int i = particles.size(); i < particleCount; i++) {
             particles.add(new Particle(selectedAttractor));
@@ -135,7 +141,9 @@ public class ParticleRenderer {
             particles.add(new Particle(selectedAttractor));
             respawnAccumulator = 0f;
         }
+    }
 
+    private void updatePhysics(float deltaTime) {
         int sumCalculations = 0;
         stepAccumulator += deltaTime;
         float fixedPhysicsStep = 1f / (particleConfig.getStepResolution() *
@@ -149,15 +157,30 @@ public class ParticleRenderer {
             }
             stepAccumulator -= fixedPhysicsStep;
         }
+        debug.setCalculations(sumCalculations);
+    }
+
+    public void render(float deltaTime) {
+        handleInput();
+        updateAttractor();
+        if (selectedAttractor == null) return;
+        spawnParticles(deltaTime);
+        updatePhysics(deltaTime);
 
         float maxDistance = 0f;
         int sumLineSegments = 0;
         Vector3 sumPosition = new Vector3();
 
+        postProcessing.capture();
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT |
+        (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+        shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
         shapeRenderer.begin();
+
         for (Particle particle : particles) {
             if (particle.isOutOfBounds()) continue;
-
             for (int j = 1; j < particle.trail.size; j++) {
                 Vector3 p1 = particle.trail.get(j - 1);
                 Vector3 p2 = particle.trail.get(j);
@@ -185,8 +208,8 @@ public class ParticleRenderer {
 
         particles.removeIf(Particle::isOutOfBounds);
         shapeRenderer.end();
-        if (debug.getDrawAxes().get()) drawAxes();
-        shapeRenderer.setProjectionMatrix(camera.getCamera().combined);
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        postProcessing.render();
 
         float halfDistance = particleConfig.getCutoffDistance() / 2f;
         Vector3 centerPoint = new Vector3(
@@ -198,11 +221,12 @@ public class ParticleRenderer {
         camera.setAutoZoom(MathUtils.clamp(maxDistance, 0f, halfDistance));
         camera.update(deltaTime);
 
-        debug.setCalculations(sumCalculations);
+        if (debug.getDrawAxes().get()) drawAxes();
         debug.setLineSegments(sumLineSegments);
     }
 
     public void dispose() {
         shapeRenderer.dispose();
+        postProcessing.dispose();
     }
 }

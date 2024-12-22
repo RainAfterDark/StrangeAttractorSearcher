@@ -53,7 +53,7 @@ public class InfoWindow implements Window {
         ImGui.begin("Info", ImGuiWindowFlags.AlwaysAutoResize);
         ImGui.setWindowPos(ImGui.getMainViewport().getSizeX() - 250,10, ImGuiCond.Once);
         ImGui.text("Strange Attractor Searcher v1.0");
-        ImGuiHelper.treeTab("Debug", false, this::renderDebugTab);
+        ImGuiHelper.treeTab("Debug", true, this::renderDebugTab);
         ImGuiHelper.treeTab("Keybindings", false, this::renderKeybindingsTab);
         ImGui.end();
     }

@@ -3,6 +3,11 @@ package io.github.rainafterdark.strangeattractorsearcher;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.bitfire.postprocessing.PostProcessor;
+import com.bitfire.postprocessing.effects.*;
+import com.bitfire.postprocessing.filters.CrtScreen;
+import com.bitfire.utils.ShaderLoader;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.GUI.GUIRenderer;
 import io.github.rainafterdark.strangeattractorsearcher.Render.ParticleRenderer;
@@ -20,18 +25,17 @@ public class Main extends ApplicationAdapter {
         guiRenderer.initImGui();
         particleRenderer = new ParticleRenderer();
         particleRenderer.init();
-        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
     }
 
     @Override
     public void render() {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT |
-        (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
         particleRenderer.render(Gdx.graphics.getDeltaTime());
-        Gdx.gl.glDisable(GL20.GL_BLEND);
         guiRenderer.render();
+    }
+
+    @Override
+    public void resume() {
+        particleRenderer.resume();
     }
 
     @Override
