@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import imgui.ImGui;
-import imgui.flag.ImGuiKey;
 import io.github.rainafterdark.strangeattractorsearcher.Data.*;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;

@@ -3,7 +3,6 @@ package io.github.rainafterdark.strangeattractorsearcher.Render;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
 import lombok.Getter;
 import lombok.Setter;

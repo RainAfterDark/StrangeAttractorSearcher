@@ -24,13 +24,11 @@ public class ConfigSingleton {
     private static ConfigSingleton instance;
     private transient final Gson gson;
 
-    // Fields
     private StrangeConfig strange = new StrangeConfig();
     private ParticleConfig particle = new ParticleConfig();
     private ColorConfig color = new ColorConfig();
     private CameraConfig camera = new CameraConfig();
 
-    // Private constructor for singleton
     private ConfigSingleton() {
         gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -43,7 +41,6 @@ public class ConfigSingleton {
             .create();
     }
 
-    // Get the singleton instance
     public static synchronized ConfigSingleton getInstance() {
         if (instance == null) {
             instance = new ConfigSingleton();
@@ -52,7 +49,6 @@ public class ConfigSingleton {
         return instance;
     }
 
-    // Save the current configuration to the JSON file
     public void saveToFile() {
         try (FileWriter writer = new FileWriter(CONFIG_FILE)) {
             gson.toJson(getInstance(), writer);
@@ -61,7 +57,6 @@ public class ConfigSingleton {
         }
     }
 
-    // Load configuration from the JSON file, or create a new default instance
     private void loadFromFile() {
         File file = new File(CONFIG_FILE);
         if (file.exists()) {
