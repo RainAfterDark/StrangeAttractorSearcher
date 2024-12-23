@@ -13,8 +13,8 @@ public class StrangeConfig {
     private List<StrangeAttractor> savedAttractors = new ArrayList<>();
     private int selectedAttractor = 0;
     private int maxIterations = 3000;
-    private float searchRadius = 0.69f;
-    private float divergenceThreshold = 1e3f;
+    private float searchRadius = 2f;
+    private float divergenceThreshold = 1e1f;
     private float convergenceThreshold = 1e-3f;
     private float lyapunovThreshold = 1e-3f;
 

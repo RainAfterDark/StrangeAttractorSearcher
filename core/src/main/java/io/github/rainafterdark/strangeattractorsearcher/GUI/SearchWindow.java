@@ -68,7 +68,7 @@ public class SearchWindow implements Window {
         ImGuiHelper.floatWidget("Lyapunov Threshold",
             "The lyapunov exponent threshold for attractor search.\n" +
                 "Set as high as possible that will still produce results.",
-            config::getLyapunovThreshold, config::setLyapunovThreshold, 0.001f, 1e-8f, 0.01f, "%.2e");
+            config::getLyapunovThreshold, config::setLyapunovThreshold, 0.001f, 1e-8f, 10f, "%.2e");
         if (searchThread != null && !shouldDisable) ImGui.endDisabled();
 
         ImGuiHelper.listWidget("Attractor",

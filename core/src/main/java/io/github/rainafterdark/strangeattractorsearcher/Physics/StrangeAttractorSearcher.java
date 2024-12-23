@@ -57,19 +57,26 @@ public class StrangeAttractorSearcher implements Runnable {
     }
 
     private boolean isStrange(StrangeAttractor attractor) {
+        float offset = 0.001f;
+        float stepSize = 1f / 120f;
         Vector3 point = new Vector3(
-            (float) Math.random() * 20 - 10,
-            (float) Math.random() * 20 - 10,
-            (float) Math.random() * 20 - 10);
+            MathUtils.random(-offset, offset),
+            MathUtils.random(-offset, offset),
+            MathUtils.random(-offset, offset));
         float lyapunovSum = 0.0f;
         float prevDistance = 0.0f;
 
         for (int i = 0; i < 100; i++) {
-            point = attractor.step(point, 1f / 120f);
+            point = attractor.step(point, stepSize);
         }
 
+        Vector3 point2 = point.cpy();
+        point2.add(MathUtils.random(-offset, offset),
+                   MathUtils.random(-offset, offset),
+                   MathUtils.random(-offset, offset));
+
         for (int i = 0; i < config.getMaxIterations(); i++) {
-            Vector3 nextPoint = attractor.step(point, 1f / 120f);
+            Vector3 nextPoint = attractor.step(point, stepSize);
 
             if (nextPoint.len() > config.getDivergenceThreshold()) {
                 return false;
@@ -78,14 +85,14 @@ public class StrangeAttractorSearcher implements Runnable {
                 return false;
             }
 
-            if (i > 0) {
-                float distance = point.dst(nextPoint);
-                lyapunovSum += (float) Math.log(Math.abs(distance / prevDistance));
-                prevDistance = distance;
-            } else {
-                prevDistance = point.dst(nextPoint);
-            }
             point = nextPoint;
+            point2 = attractor.step(point2, stepSize);
+            float distance = point.dst(point2);
+
+            if (i > 0) {
+                lyapunovSum += (float) Math.log(Math.abs(distance / prevDistance));
+            }
+            prevDistance = distance;
         }
 
         float lyapunovExponent = lyapunovSum / config.getMaxIterations();
