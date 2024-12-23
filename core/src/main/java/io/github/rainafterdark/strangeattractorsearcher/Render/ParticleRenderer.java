@@ -88,13 +88,13 @@ public class ParticleRenderer {
     }
 
     private void drawAxes() {
-        float axisLength = 50f;
+        float axisLength = particleConfig.getCutoffDistance() * 2f;
         shapeRenderer.begin();
-        shapeRenderer.setColor(Color.RED.cpy().sub(0, 0, 0, 0.5f));
+        shapeRenderer.setColor(Color.RED);
         shapeRenderer.line(-axisLength, 0, 0, axisLength, 0, 0);
-        shapeRenderer.setColor(Color.GREEN.cpy().sub(0, 0, 0, 0.5f));
+        shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.line(0, -axisLength, 0, 0, axisLength, 0);
-        shapeRenderer.setColor(Color.SKY.cpy().sub(0, 0, 0, 0.5f));
+        shapeRenderer.setColor(Color.SKY);
         shapeRenderer.line(0, 0, -axisLength, 0, 0, axisLength);
         shapeRenderer.end();
     }

@@ -68,7 +68,7 @@ public class ConfigWindow implements Window {
     @Override
     public void render() {
         ImGui.begin("Config", ImGuiWindowFlags.AlwaysAutoResize);
-        ImGui.setWindowPos(10, 10, ImGuiCond.Once);
+        ImGui.setWindowPos(10, 10, ImGuiCond.FirstUseEver);
         ImGuiHelper.treeTab("Physics", true, this::renderPhysicsTab);
         ImGuiHelper.treeTab("Color", true, this::renderColorTab);
         ImGuiHelper.treeTab("Camera", true, this::renderCameraTab);

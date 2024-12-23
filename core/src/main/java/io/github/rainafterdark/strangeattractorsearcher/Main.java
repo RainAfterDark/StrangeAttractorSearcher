@@ -2,12 +2,6 @@ package io.github.rainafterdark.strangeattractorsearcher;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.bitfire.postprocessing.PostProcessor;
-import com.bitfire.postprocessing.effects.*;
-import com.bitfire.postprocessing.filters.CrtScreen;
-import com.bitfire.utils.ShaderLoader;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.GUI.GUIRenderer;
 import io.github.rainafterdark.strangeattractorsearcher.Render.ParticleRenderer;

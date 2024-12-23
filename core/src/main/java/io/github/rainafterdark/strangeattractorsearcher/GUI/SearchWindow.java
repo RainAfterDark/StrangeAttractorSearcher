@@ -43,7 +43,7 @@ public class SearchWindow implements Window {
     @Override
     public void render() {
         ImGui.begin("Strange Attractor Search", ImGuiWindowFlags.AlwaysAutoResize);
-        ImGui.setWindowPos(10, ImGui.getMainViewport().getSizeY() - 225, ImGuiCond.Once);
+        ImGui.setWindowPos(10, ImGui.getMainViewport().getSizeY() - 225, ImGuiCond.FirstUseEver);
         ImGuiHelper.enumWidget("Attractor Type",
                 "Select from a set of preset equations,\n" +
                 "or a randomly parameterized strange one.",

@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GUIRenderer {
+    private static final String INI_FILE = "sas_imgui.ini";
+    private static final String GLSL_VERSION = "#version 150";
+
     private ImGuiImplGlfw imGuiGlfw;
     private ImGuiImplGl3 imGuiGl3;
     private InputProcessor tmpProcessor;
@@ -25,11 +28,11 @@ public class GUIRenderer {
         long windowHandle = ((Lwjgl3Graphics) Gdx.graphics).getWindow().getWindowHandle();
         ImGui.createContext();
         ImGuiIO io = ImGui.getIO();
-        io.setIniFilename(null);
+        io.setIniFilename(INI_FILE);
         io.getFonts().addFontDefault();
         io.getFonts().build();
         imGuiGlfw.init(windowHandle, true);
-        imGuiGl3.init("#version 150");
+        imGuiGl3.init(GLSL_VERSION);
         ImGui.styleColorsClassic();
 
         windows.add(new SearchWindow());
