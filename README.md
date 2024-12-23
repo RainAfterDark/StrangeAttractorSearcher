@@ -1,6 +1,6 @@
 # StrangeAttractorSearcher
 
-![SA1](./docs/strange-attractor.png)
+https://github.com/user-attachments/assets/4374549b-cbba-493d-9c77-977a5ddc0bf4
 
 A visualizer and generator for strange attractors, written in Java with [libGDX](https://libgdx.com/).
 
