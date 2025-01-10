@@ -22,7 +22,7 @@ public class GUIRenderer {
     private final List<Window> windows = new ArrayList<>();
     private boolean showGUI = true;
 
-    public void initImGui() {
+    public GUIRenderer() {
         imGuiGlfw = new ImGuiImplGlfw();
         imGuiGl3 = new ImGuiImplGl3();
         long windowHandle = ((Lwjgl3Graphics) Gdx.graphics).getWindow().getWindowHandle();

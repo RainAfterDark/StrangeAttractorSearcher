@@ -5,22 +5,22 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Data.DebugSingleton;
-import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import lombok.Getter;
 
 public class Camera {
-    private CameraConfig cameraConfig;
-    private ParticleConfig particleConfig;
-    private DebugSingleton debug;
+    private final CameraConfig cameraConfig;
+    private final ParticleConfig particleConfig;
+    private final DebugSingleton debug;
 
-    @Getter PerspectiveCamera camera;
+    @Getter private final PerspectiveCamera camera;
     @Getter private final Vector3 autoCenterPoint = new Vector3();
     @Getter float autoZoom = 0f;
     private float timeAccumulator = 0f;
 
-    public void init() {
+    public Camera() {
         ConfigSingleton config = ConfigSingleton.getInstance();
         cameraConfig = config.getCamera();
         particleConfig = config.getParticle();
@@ -69,5 +69,6 @@ public class Camera {
     public void reset() {
         autoCenterPoint.set(Vector3.Zero);
         autoZoom = 0f;
+        timeAccumulator = 0f;
     }
 }

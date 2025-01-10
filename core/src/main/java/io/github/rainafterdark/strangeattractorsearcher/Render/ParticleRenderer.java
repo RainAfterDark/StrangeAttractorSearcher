@@ -7,11 +7,12 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import io.github.rainafterdark.strangeattractorsearcher.Data.*;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
-import io.github.rainafterdark.strangeattractorsearcher.Physics.*;
+import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
+import io.github.rainafterdark.strangeattractorsearcher.Data.DebugSingleton;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.AizawaAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.HalvorsenAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.LorenzAttractor;
@@ -19,41 +20,71 @@ import io.github.rainafterdark.strangeattractorsearcher.Physics.Preset.NewtonLei
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RecursiveAction;
 
 public class ParticleRenderer {
-    private StrangeConfig strangeConfig;
-    private ParticleConfig particleConfig;
-    private ColorConfig colorConfig;
-    private DebugSingleton debug;
+    private final StrangeConfig strangeConfig;
+    private final ParticleConfig particleConfig;
+    private final ColorConfig colorConfig;
+    private final DebugSingleton debug;
 
     private final LorenzAttractor lorenzAttractor = new LorenzAttractor();
     private final AizawaAttractor aizawaAttractor = new AizawaAttractor();
     private final HalvorsenAttractor halvorsenAttractor = new HalvorsenAttractor();
     private final NewtonLeipnikAttractor newtonLeipnikAttractor = new NewtonLeipnikAttractor();
 
-    private Camera camera;
-    private ShapeRenderer shapeRenderer;
-    private PostProcessing postProcessing;
+    private final Camera camera;
+    private final ShapeRenderer shapeRenderer;
+    private final PostProcessing postProcessing;
+    private final List<Particle> particles = new ArrayList<>();
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-    private List<Particle> particles;
     private Attractor selectedAttractor;
     private float stepAccumulator = 0f;
     private float respawnAccumulator = 0f;
 
-    public void init() {
+    private class ParticleUpdateTask extends RecursiveAction {
+        private static final int THRESHOLD = 50;
+        private final int start;
+        private final int end;
+        private final float fixedPhysicsStep;
+
+        public ParticleUpdateTask(int start, int end, float fixedPhysicsStep) {
+            this.start = start;
+            this.end = end;
+            this.fixedPhysicsStep = fixedPhysicsStep;
+        }
+
+        @Override
+        protected void compute() {
+            if (end - start <= THRESHOLD) {
+                for (int i = start; i < end; i++) {
+                    Particle particle = particles.get(i);
+                    particle.update(selectedAttractor, fixedPhysicsStep,
+                        particleConfig.getSimulationSpeed(), particleConfig.getTrailLength());
+                }
+            } else {
+                int mid = (start + end) / 2;
+                ParticleUpdateTask leftTask = new ParticleUpdateTask(start, mid, fixedPhysicsStep);
+                ParticleUpdateTask rightTask = new ParticleUpdateTask(mid, end, fixedPhysicsStep);
+                invokeAll(leftTask, rightTask);
+            }
+        }
+    }
+
+    public ParticleRenderer() {
         ConfigSingleton config = ConfigSingleton.getInstance();
         strangeConfig = config.getStrange();
         particleConfig = config.getParticle();
         colorConfig = config.getColor();
         debug = DebugSingleton.getInstance();
         camera = new Camera();
-        camera.init();
         shapeRenderer = new ShapeRenderer(10000);
         shapeRenderer.setAutoShapeType(true);
         postProcessing = new PostProcessing();
         postProcessing.init();
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
-        particles = new ArrayList<>();
     }
 
     public void resume() {
@@ -131,30 +162,25 @@ public class ParticleRenderer {
     private void spawnParticles(float deltaTime) {
         int particleCount = particleConfig.getParticleCount();
         for (int i = particles.size(); i < particleCount; i++) {
-            particles.add(new Particle(selectedAttractor));
+            particles.add(new Particle(selectedAttractor, particleConfig, colorConfig, camera.getAutoCenterPoint()));
         }
         for (int i = particles.size(); i > particleCount; i--) {
             particles.remove(0);
         }
         respawnAccumulator += deltaTime;
         if (respawnAccumulator >= particleConfig.getRespawnTime()) {
-            particles.add(new Particle(selectedAttractor));
+            particles.add(new Particle(selectedAttractor, particleConfig, colorConfig, camera.getAutoCenterPoint()));
             respawnAccumulator = 0f;
         }
     }
 
     private void updatePhysics(float deltaTime) {
         int sumCalculations = 0;
-        stepAccumulator += deltaTime;
-        float fixedPhysicsStep = 1f / (particleConfig.getStepResolution() *
-            MathUtils.clamp(particleConfig.getSimulationSpeed(), 1f, 10f));
+        stepAccumulator += deltaTime * particleConfig.getSimulationSpeed();
+        float fixedPhysicsStep = 1f / particleConfig.getStepResolution();
         while (stepAccumulator >= fixedPhysicsStep) {
-            for (Particle particle : particles) {
-                particle.update(selectedAttractor, fixedPhysicsStep,
-                    particleConfig.getSimulationSpeed(),
-                    particleConfig.getTrailLength());
-                sumCalculations++;
-            }
+            forkJoinPool.invoke(new ParticleUpdateTask(0, particles.size(), fixedPhysicsStep));
+            sumCalculations += particles.size();
             stepAccumulator -= fixedPhysicsStep;
         }
         debug.setCalculations(sumCalculations);
@@ -182,26 +208,20 @@ public class ParticleRenderer {
         for (Particle particle : particles) {
             if (particle.isOutOfBounds()) continue;
             for (int j = 1; j < particle.trail.size; j++) {
-                Vector3 p1 = particle.trail.get(j - 1);
-                Vector3 p2 = particle.trail.get(j);
-                float centerDistance = p2.dst(camera.getAutoCenterPoint());
-                if (!Float.isFinite(centerDistance)) {
+                ParticlePoint p1 = particle.trail.get(j - 1);
+                ParticlePoint p2 = particle.trail.get(j);
+                if (!Float.isFinite(p2.distance)) {
                     particle.setOutOfBounds(true);
                     break;
                 }
-                maxDistance = Math.max(centerDistance, maxDistance);
-                sumPosition.add(p2);
+                maxDistance = Math.max(p2.distance, maxDistance);
+                sumPosition.add(p2.position);
 
-                float velocity = p2.dst(p1);
+                float velocity = p2.velocity;
                 if (velocity > particleConfig.getMaxVelocity()) continue;
-                float minVelocity = 0f;
-                float maxVelocity = colorConfig.getGradientScaling();
-                float normalizedVelocity = MathUtils.clamp((velocity - minVelocity) / (maxVelocity - minVelocity), 0f, 1f);
-                Color trailColor = colorConfig.getGradientColor().getColor(normalizedVelocity);
-                trailColor.a = (float) j / particle.trail.size;
-
-                shapeRenderer.setColor(trailColor);
-                shapeRenderer.line(p1, p2);
+                p2.color.a = (float) j / particle.trail.size;
+                shapeRenderer.setColor(p2.color);
+                shapeRenderer.line(p1.position, p2.position);
                 sumLineSegments++;
             }
         }

@@ -16,9 +16,7 @@ public class Main extends ApplicationAdapter {
     public void create() {
         config = ConfigSingleton.getInstance();
         guiRenderer = new GUIRenderer();
-        guiRenderer.initImGui();
         particleRenderer = new ParticleRenderer();
-        particleRenderer.init();
     }
 
     @Override
