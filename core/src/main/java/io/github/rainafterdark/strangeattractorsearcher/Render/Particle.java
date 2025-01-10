@@ -33,8 +33,8 @@ public class Particle {
         if (!outOfBounds) {
             ParticlePoint head = trail.get(trail.size - 1);
             float dt = deltaTime * speed;
-            Vector3 step = attractor.step(head.position, dt);
-            trail.add(new ParticlePoint(step, head.position, center, colorConfig));
+            Vector3 step = attractor.step(head.getPosition(), dt);
+            trail.add(new ParticlePoint(step, head.getPosition(), center, colorConfig));
             return;
         }
         if (!trail.isEmpty())

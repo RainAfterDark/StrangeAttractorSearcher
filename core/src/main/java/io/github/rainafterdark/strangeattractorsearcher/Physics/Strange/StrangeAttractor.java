@@ -11,7 +11,8 @@ public abstract class StrangeAttractor implements Attractor {
         this.coefficients = Arrays.copyOf(coefficients, coefficients.length);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return String.format("%04X-%s", this.hashCode() & 0xFFFF,
             this.getClass().getSimpleName()
                 .replace("Strange", "")

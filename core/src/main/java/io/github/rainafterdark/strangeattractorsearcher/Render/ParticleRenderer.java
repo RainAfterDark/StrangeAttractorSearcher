@@ -210,18 +210,18 @@ public class ParticleRenderer {
             for (int j = 1; j < particle.trail.size; j++) {
                 ParticlePoint p1 = particle.trail.get(j - 1);
                 ParticlePoint p2 = particle.trail.get(j);
-                if (!Float.isFinite(p2.distance)) {
+                if (!Float.isFinite(p2.getDistance())) {
                     particle.setOutOfBounds(true);
                     break;
                 }
-                maxDistance = Math.max(p2.distance, maxDistance);
-                sumPosition.add(p2.position);
+                maxDistance = Math.max(p2.getDistance(), maxDistance);
+                sumPosition.add(p2.getPosition());
 
-                float velocity = p2.velocity;
+                float velocity = p2.getVelocity();
                 if (velocity > particleConfig.getMaxVelocity()) continue;
-                p2.color.a = (float) j / particle.trail.size;
-                shapeRenderer.setColor(p2.color);
-                shapeRenderer.line(p1.position, p2.position);
+                p2.getColor().a = (float) j / particle.trail.size;
+                shapeRenderer.setColor(p2.getColor());
+                shapeRenderer.line(p1.getPosition(), p2.getPosition());
                 sumLineSegments++;
             }
         }

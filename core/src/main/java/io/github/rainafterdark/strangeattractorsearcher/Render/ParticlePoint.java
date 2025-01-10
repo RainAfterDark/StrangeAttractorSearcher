@@ -4,12 +4,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
+import lombok.Getter;
 
+@Getter
 public class ParticlePoint {
-    public final Vector3 position;
-    public final float velocity;
-    public final float distance;
-    public final Color color;
+    private final Vector3 position;
+    private final float velocity;
+    private final float distance;
+    private final Color color;
 
     public ParticlePoint(Vector3 position, Vector3 previousPosition, Vector3 centerPosition, ColorConfig colorConfig) {
         this.position = position;
