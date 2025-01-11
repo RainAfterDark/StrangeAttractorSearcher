@@ -38,6 +38,7 @@ public class GUIRenderer {
         windows.add(new SearchWindow());
         windows.add(new ConfigWindow());
         windows.add(new InfoWindow());
+        windows.add(new ParamsWindow());
     }
 
     private void startImGui() {

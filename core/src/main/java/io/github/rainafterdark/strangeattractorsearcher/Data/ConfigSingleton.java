@@ -6,28 +6,35 @@ import io.github.rainafterdark.strangeattractorsearcher.Data.Config.CameraConfig
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ColorConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.ParticleConfig;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Physics.Attractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeCubicAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuadraticAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuarticAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Util.PropertyBasedInterfaceMarshal;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-@Data
 public class ConfigSingleton {
     private static final String CONFIG_FILE = "sas_config.json";
     private static ConfigSingleton instance;
     private transient final Gson gson;
 
-    private StrangeConfig strange = new StrangeConfig();
-    private ParticleConfig particle = new ParticleConfig();
-    private ColorConfig color = new ColorConfig();
-    private CameraConfig camera = new CameraConfig();
+    @Getter
+    private final StrangeConfig strange = new StrangeConfig();
+    @Getter
+    private final ParticleConfig particle = new ParticleConfig();
+    @Getter
+    private final ColorConfig color = new ColorConfig();
+    @Getter
+    private final CameraConfig camera = new CameraConfig();
+    @Getter @Setter
+    private transient Attractor selectedAttractor;
 
     private ConfigSingleton() {
         gson = new GsonBuilder()

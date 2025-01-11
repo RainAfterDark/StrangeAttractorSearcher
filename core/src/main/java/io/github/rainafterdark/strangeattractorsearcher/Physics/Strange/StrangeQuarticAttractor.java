@@ -18,7 +18,6 @@ public class StrangeQuarticAttractor extends StrangeAttractor {
         float y = point.y;
         float z = point.z;
         float dt = 0.5f * deltaTime;
-        float[] c = coefficients;
 
         float dx = c[0] * x * x * x * x  // x^4
          + c[1] * y * y * y * y  // y^4

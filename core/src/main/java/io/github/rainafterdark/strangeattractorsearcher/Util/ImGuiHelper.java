@@ -28,6 +28,12 @@ public class ImGuiHelper {
         tooltip(hint);
     }
 
+    public static void sameLineHint(String hint) {
+        if (hint == null) return;
+        ImGui.sameLine();
+        helpMarker(hint);
+    }
+
     public static void treeTab(String label, boolean defaultOpen, Runnable renderFunction) {
         int tabFlags = ImGuiTreeNodeFlags.Framed;
         if (defaultOpen) tabFlags |= ImGuiTreeNodeFlags.DefaultOpen;
@@ -46,8 +52,7 @@ public class ImGuiHelper {
             ConfigSingleton.getInstance().saveToFile();
             changed = true;
         }
-        ImGui.sameLine();
-        helpMarker(hint);
+        sameLineHint(hint);
         return changed;
     }
 
@@ -60,8 +65,7 @@ public class ImGuiHelper {
             ConfigSingleton.getInstance().saveToFile();
             changed = true;
         }
-        ImGui.sameLine();
-        helpMarker(hint);
+        sameLineHint(hint);
         return changed;
     }
 
@@ -74,8 +78,7 @@ public class ImGuiHelper {
             ConfigSingleton.getInstance().saveToFile();
             changed = true;
         }
-        ImGui.sameLine();
-        helpMarker(hint);
+        sameLineHint(hint);
         return changed;
     }
 
@@ -103,8 +106,7 @@ public class ImGuiHelper {
             setter.accept(currentItem.get());
             changed = true;
         }
-        ImGui.sameLine();
-        helpMarker(hint);
+        sameLineHint(hint);
         ImGui.sameLine();
         if (ImGui.button("<##Prev" + label) && !empty) {
             int newIndex = currentItem.get() - 1;
@@ -130,6 +132,7 @@ public class ImGuiHelper {
             Gradient currentValue = getter.get();
             List<Color> colors = currentValue.getColors();
 
+            ImGui.beginChild(label, 410, 160, false);
             if (ImGui.button("Rainbow")) {
                 setter.accept(Gradient.getRainbowGradient());
                 changed.set(true);
@@ -200,6 +203,7 @@ public class ImGuiHelper {
                 colors.set(toRandomize, ColorHelper.getRandom());
                 changed.set(true);
             }
+            ImGui.endChild();
         });
 
         if (changed.get()) ConfigSingleton.getInstance().saveToFile();

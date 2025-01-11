@@ -1,5 +1,6 @@
 package io.github.rainafterdark.strangeattractorsearcher.GUI;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import imgui.ImGui;
 import imgui.flag.ImGuiCond;
@@ -11,6 +12,7 @@ public class InfoWindow implements Window {
     private final DebugSingleton debug = DebugSingleton.getInstance();
     private float timeAccumulator = 0f;
     private float frameRate = 0f;
+    private long heap = 0;
     private int calculations = 0;
     private int lineSegments = 0;
     private Vector3 centerPoint = new Vector3();
@@ -21,6 +23,7 @@ public class InfoWindow implements Window {
         float pollRate = 0.25f;
         if (timeAccumulator > pollRate) {
             frameRate = ImGui.getIO().getFramerate();
+            heap = Gdx.app.getJavaHeap() / 1024 / 1024;
             calculations = (int) (debug.getCalculations() * frameRate);
             lineSegments = debug.getLineSegments();
             centerPoint = debug.getAutoCenterPoint().cpy();
@@ -31,6 +34,7 @@ public class InfoWindow implements Window {
 
     private void renderDebugTab() {
         ImGui.text(String.format("FPS: %.3f", frameRate));
+        ImGui.text(String.format("Heap: %,d MB", heap));
         ImGui.text(String.format("Calculations: %,d/s", calculations));
         ImGui.text(String.format("Line Segments: %,d", lineSegments));
         Vector3 p = centerPoint;
@@ -45,6 +49,7 @@ public class InfoWindow implements Window {
         ImGui.text("H: Hide/Show UI");
         ImGui.text("<: Previous Attractor");
         ImGui.text(">: Next Attractor");
+        ImGui.text("Esc: Exit");
     }
 
     @Override

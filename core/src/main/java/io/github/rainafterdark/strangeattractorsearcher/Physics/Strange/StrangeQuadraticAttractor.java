@@ -18,7 +18,6 @@ public class StrangeQuadraticAttractor extends StrangeAttractor {
         float y = point.y;
         float z = point.z;
         float dt = 0.5f * deltaTime;
-        float[] c = coefficients;
 
         float dx = c[0] * x * x + c[1] * y * y + c[2] * z * z
                  + c[3] * x * y + c[4] * x * z + c[5] * y * z

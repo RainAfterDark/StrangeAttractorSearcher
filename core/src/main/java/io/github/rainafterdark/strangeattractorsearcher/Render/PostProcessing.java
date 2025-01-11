@@ -8,9 +8,9 @@ import com.bitfire.postprocessing.effects.Vignette;
 import com.bitfire.utils.ShaderLoader;
 
 public class PostProcessing {
-    private PostProcessor postProcessor;
+    private final PostProcessor postProcessor;
 
-    public void init() {
+    public PostProcessing() {
         ShaderLoader.BasePath = "shaders/";
         postProcessor = new PostProcessor( false, false, true);
         Bloom bloom = new Bloom((int)(Gdx.graphics.getWidth() * 0.25f), (int)(Gdx.graphics.getHeight() * 0.25f));

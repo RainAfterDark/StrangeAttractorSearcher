@@ -24,6 +24,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 public class ParticleRenderer {
+    private final ConfigSingleton config;
     private final StrangeConfig strangeConfig;
     private final ParticleConfig particleConfig;
     private final ColorConfig colorConfig;
@@ -40,7 +41,6 @@ public class ParticleRenderer {
     private final List<Particle> particles = new ArrayList<>();
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
-    private Attractor selectedAttractor;
     private float stepAccumulator = 0f;
     private float respawnAccumulator = 0f;
 
@@ -61,7 +61,7 @@ public class ParticleRenderer {
             if (end - start <= THRESHOLD) {
                 for (int i = start; i < end; i++) {
                     Particle particle = particles.get(i);
-                    particle.update(selectedAttractor, fixedPhysicsStep,
+                    particle.update(config.getSelectedAttractor(), fixedPhysicsStep,
                         particleConfig.getSimulationSpeed(), particleConfig.getTrailLength());
                 }
             } else {
@@ -74,7 +74,7 @@ public class ParticleRenderer {
     }
 
     public ParticleRenderer() {
-        ConfigSingleton config = ConfigSingleton.getInstance();
+        config = ConfigSingleton.getInstance();
         strangeConfig = config.getStrange();
         particleConfig = config.getParticle();
         colorConfig = config.getColor();
@@ -83,7 +83,6 @@ public class ParticleRenderer {
         shapeRenderer = new ShapeRenderer(10000);
         shapeRenderer.setAutoShapeType(true);
         postProcessing = new PostProcessing();
-        postProcessing.init();
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
     }
 
@@ -116,6 +115,7 @@ public class ParticleRenderer {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) reset();
         if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) previousAttractor();
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) nextAttractor();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
     }
 
     private void drawAxes() {
@@ -153,23 +153,27 @@ public class ParticleRenderer {
                 }
                 break;
         }
-        if (newAttractor == null || !newAttractor.equals(selectedAttractor)) {
+        if (newAttractor == null || !newAttractor.equals(config.getSelectedAttractor())) {
             reset();
-            selectedAttractor = newAttractor;
+            if (newAttractor != null)
+                newAttractor.initParams();
+            config.setSelectedAttractor(newAttractor);
         }
     }
 
     private void spawnParticles(float deltaTime) {
         int particleCount = particleConfig.getParticleCount();
         for (int i = particles.size(); i < particleCount; i++) {
-            particles.add(new Particle(selectedAttractor, particleConfig, colorConfig, camera.getAutoCenterPoint()));
+            particles.add(new Particle(config.getSelectedAttractor(),
+                particleConfig, colorConfig, camera.getAutoCenterPoint()));
         }
         for (int i = particles.size(); i > particleCount; i--) {
             particles.remove(0);
         }
         respawnAccumulator += deltaTime;
         if (respawnAccumulator >= particleConfig.getRespawnTime()) {
-            particles.add(new Particle(selectedAttractor, particleConfig, colorConfig, camera.getAutoCenterPoint()));
+            particles.add(new Particle(config.getSelectedAttractor(),
+                particleConfig, colorConfig, camera.getAutoCenterPoint()));
             respawnAccumulator = 0f;
         }
     }
@@ -189,10 +193,11 @@ public class ParticleRenderer {
     public void render(float deltaTime) {
         handleInput();
         updateAttractor();
-        if (selectedAttractor == null) return;
+        if (config.getSelectedAttractor() == null)
+            return;
+
         spawnParticles(deltaTime);
         updatePhysics(deltaTime);
-
         float maxDistance = 0f;
         int sumLineSegments = 0;
         Vector3 sumPosition = new Vector3();
