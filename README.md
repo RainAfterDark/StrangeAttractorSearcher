@@ -22,6 +22,7 @@ This is project was generated with [gdx-liftoff](https://github.com/libgdx/gdx-l
 - `R`: Reset the simulation.
 - `H`: Toggle the GUI.
 - `Left and Right Arrows`: Change the attractor.
+- `Escape`: Exit the application.
 
 ### Attractor Search
 
@@ -73,7 +74,6 @@ This builds application's runnable Windows 64-bit executable with JRE bundled in
 - `lwjgl3:packageLinuxX64`
 - `lwjgl3:packageMacM1`
 - `lwjgl3:packageMacX64`
-- `lwjgl3:packageWinX64`
 
 ## References
 

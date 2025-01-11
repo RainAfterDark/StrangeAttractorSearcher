@@ -32,7 +32,7 @@ public class Lwjgl3Launcher {
         int samples = 4; // 0 = no antialiasing, 2 = 2x antialiasing, 4 = 4x antialiasing, etc.
         configuration.setBackBufferConfig(8, 8, 8, 8, 16, 0, samples);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        configuration.setWindowIcon("sas128.png", "sas64.png", "sas32.png", "sas16.png");
         return configuration;
     }
 }
