@@ -2,6 +2,7 @@ package io.github.rainafterdark.strangeattractorsearcher;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.GUI.GUIRenderer;
 import io.github.rainafterdark.strangeattractorsearcher.Render.ParticleRenderer;
@@ -14,6 +15,9 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
+        Gdx.graphics.setUndecorated(true);
+        Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
+        Gdx.graphics.setWindowedMode(displayMode.width, displayMode.height);
         config = ConfigSingleton.getInstance();
         guiRenderer = new GUIRenderer();
         particleRenderer = new ParticleRenderer();
