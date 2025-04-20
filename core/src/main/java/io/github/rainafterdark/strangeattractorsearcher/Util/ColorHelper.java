@@ -10,22 +10,15 @@ public class ColorHelper {
         float p = value * (1 - saturation);
         float q = value * (1 - f * saturation);
         float t = value * (1 - (1 - f) * saturation);
-        switch (h) {
-            case 0:
-                return new Color(value, t, p, alpha);
-            case 1:
-                return new Color(q, value, p, alpha);
-            case 2:
-                return new Color(p, value, t, alpha);
-            case 3:
-                return new Color(p, q, value, alpha);
-            case 4:
-                return new Color(t, p, value, alpha);
-            case 5:
-                return new Color(value, p, q, alpha);
-            default:
-                return new Color(0, 0, 0, alpha);
-        }
+        return switch (h) {
+            case 0 -> new Color(value, t, p, alpha);
+            case 1 -> new Color(q, value, p, alpha);
+            case 2 -> new Color(p, value, t, alpha);
+            case 3 -> new Color(p, q, value, alpha);
+            case 4 -> new Color(t, p, value, alpha);
+            case 5 -> new Color(value, p, q, alpha);
+            default -> new Color(0, 0, 0, alpha);
+        };
     }
 
     @Getter

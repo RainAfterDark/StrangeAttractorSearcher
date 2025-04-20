@@ -19,7 +19,7 @@ public class Gradient {
         }
 
         if (colors.size() == 1) {
-            return colors.get(0);
+            return colors.getFirst();
         }
 
         float segmentLength = 1f / (colors.size() - 1);

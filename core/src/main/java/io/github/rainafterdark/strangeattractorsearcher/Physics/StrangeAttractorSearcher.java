@@ -2,8 +2,8 @@ package io.github.rainafterdark.strangeattractorsearcher.Physics;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Data.Config.StrangeConfig;
+import io.github.rainafterdark.strangeattractorsearcher.Data.ConfigSingleton;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeCubicAttractor;
 import io.github.rainafterdark.strangeattractorsearcher.Physics.Strange.StrangeQuadraticAttractor;
@@ -25,35 +25,26 @@ public class StrangeAttractorSearcher implements Runnable {
     }
 
     private StrangeAttractor createAttractor() {
-        int numCoefficients;
-        switch (attractorType) {
-            case StrangeQuadratic:
-                numCoefficients = 30;
-                break;
-            case StrangeCubic:
-                numCoefficients = 60;
-                break;
-            case StrangeQuartic:
-                numCoefficients = 105;
-                break;
-            default:
-                numCoefficients = 0;
-                break;
-        }
+        int numCoefficients = switch (attractorType) {
+            case StrangeQuadratic -> 30;
+            case StrangeCubic -> 60;
+            case StrangeQuartic -> 105;
+            default -> 0;
+        };
         float[] coefficients = new float[numCoefficients];
         for (int i = 0; i < coefficients.length; i++) {
             coefficients[i] = MathUtils.random(-config.getSearchRadius(), config.getSearchRadius());
         }
-        switch (attractorType) {
-            case StrangeQuadratic:
-                return new StrangeQuadraticAttractor(coefficients);
-            case StrangeCubic:
-                return new StrangeCubicAttractor(coefficients);
-            case StrangeQuartic:
-                return new StrangeQuarticAttractor(coefficients);
-            default:
-                return null;
+        StrangeAttractor attractor = switch (attractorType) {
+            case StrangeQuadratic -> new StrangeQuadraticAttractor(coefficients);
+            case StrangeCubic -> new StrangeCubicAttractor(coefficients);
+            case StrangeQuartic -> new StrangeQuarticAttractor(coefficients);
+            default -> null;
+        };
+        if (attractor != null) {
+            attractor.initParams();
         }
+        return attractor;
     }
 
     private boolean isStrange(StrangeAttractor attractor) {
